@@ -7,19 +7,21 @@
 //
 // Source File Name : clientQ.cpp
 //
-// Version          : $Id: $
+// Version          : $Id: clientQ.cpp,v 1.1 2001/04/21 02:51:43 sconnet Exp sconnet $
 //
 // File Overview    : Queue of clients waiting to be logged in
 //
 // Revision History : 
 //
-// $Log: $
+// $Log: clientQ.cpp,v $
+// Revision 1.1  2001/04/21 02:51:43  sconnet
+// Initial revision
+//
 //
 //*****************************************************************************
 
 #include "pgserver.h"
 #include "clientQ.h"
-
 
 //
 //-------------------------------------------------------------------------
@@ -31,11 +33,17 @@
 //
 //-------------------------------------------------------------------------
 //
-CClientQ::CClientQ()
+CClientQ::CClientQ() :
+  m_bTrigger(false)
 {
-    pthread_mutex_init(&m_lock, NULL);
-}
+  string method("CClientQ::CClientQ");
+  traceBegin(method);
+  
+  pthread_mutex_init(&m_triggerMutex, NULL);
+  pthread_cond_init(&m_triggerCond, NULL);
 
+  traceEnd(method);
+}
 
 //
 //-------------------------------------------------------------------------
@@ -49,9 +57,14 @@ CClientQ::CClientQ()
 //
 CClientQ::~CClientQ()
 {
-    pthread_mutex_destroy(&m_lock);
-}
+  string method("CClientQ::~CClientQ");
+  traceBegin(method);
+  
+  pthread_mutex_destroy(&m_triggerMutex);
+  pthread_cond_destroy(&m_triggerCond);
 
+  traceEnd(method);
+}
 
 //
 //-------------------------------------------------------------------------
@@ -65,14 +78,17 @@ CClientQ::~CClientQ()
 //
 void CClientQ::Push(CClient* pClient)
 {
-    // lock the queue
-    pthread_mutex_lock(&m_lock);
+  string method("CClientQ::Push");
+  traceBegin(method);
 
-    if(pClient != NULL)
-        m_queue.push(pClient);
+  lock();  
+  if(pClient != NULL) {
+    m_queue.push(pClient);
+    Trigger();
+  }
+  unlock();
 
-    // unlock the queue
-    pthread_mutex_unlock(&m_lock);
+  traceEnd(method);
 
 } // Push
 
@@ -91,22 +107,75 @@ void CClientQ::Push(CClient* pClient)
 //
 bool CClientQ::PopFront(CClient*& pClient)
 {
-    // lock the queue
-    pthread_mutex_lock(&m_lock);
+  string method("CClientQ::PopFront");
+  traceBegin(method);
+  
+  lock();
+  bool bIsNotEmpty = (bool)!m_queue.empty();
+  if(bIsNotEmpty) {
+    pClient = m_queue.front();
+    m_queue.pop();
+  }
+  
+  unlock();
 
-    bool bIsNotEmpty = (bool)!m_queue.empty();
-    if(bIsNotEmpty)
-    {
-        pClient = m_queue.front();
-        m_queue.pop();
-    }
-
-    // unlock the queue
-    pthread_mutex_unlock(&m_lock);
-    return (bIsNotEmpty && (pClient != NULL));
+  traceEnd(method);
+  return (bIsNotEmpty && (pClient != NULL));
 
 } // PopFront
 
+//
+//-------------------------------------------------------------------------
+// Function       : bool CClientQ::WaitOnTrigger()
+//
+// Implementation : Returns when a trigger, which is a new client arriving
+//                  or main setting the trigger to wake up waiting threads
+//                  cause the app wants to exit
+//
+// Author         : Steve Connet
+//
+//-------------------------------------------------------------------------
+//
+void CClientQ::WaitOnTrigger()
+{
+  string method("CClientQ::WaitOnTrigger");
+  traceBegin(method);
+
+  pthread_mutex_lock(&m_triggerMutex);
+  m_bTrigger = false;
+  while(!m_bTrigger)
+    pthread_cond_wait(&m_triggerCond, &m_triggerMutex);
+  //  m_bTrigger = false;
+  pthread_mutex_unlock(&m_triggerMutex);
+
+  traceEnd(method);
+  
+} // WaitOnTrigger
+
+//
+//-------------------------------------------------------------------------
+// Function       : bool CClientQ::Trigger()
+//
+// Implementation : Sets the trigger so that waiting threads can be woken
+//                  up to take action
+//
+// Author         : Steve Connet
+//
+//-------------------------------------------------------------------------
+//
+void CClientQ::Trigger()
+{
+  string method("CClientQ::Trigger");
+  traceBegin(method);
+  
+  pthread_mutex_lock(&m_triggerMutex);
+  m_bTrigger = true;
+  pthread_mutex_unlock(&m_triggerMutex);
+  pthread_cond_broadcast(&m_triggerCond);
+
+  traceEnd(method);
+  
+} // Trigger
 
 //
 //-------------------------------------------------------------------------
@@ -118,13 +187,18 @@ bool CClientQ::PopFront(CClient*& pClient)
 //
 //-------------------------------------------------------------------------
 //
-int CClientQ::Size()
+int CClientQ::Size() const
 {
-    pthread_mutex_lock(&m_lock);
-    int nSize = m_queue.size();
-    pthread_mutex_unlock(&m_lock);
-    return nSize;
+  string method("CClientQ::Size");
+  traceBegin(method);
+  
+  lock();
+  int nSize = m_queue.size();
+  unlock();
 
+  traceEnd(method);
+  return nSize;
+  
 } // Size
 
 
@@ -141,20 +215,20 @@ int CClientQ::Size()
 //
 void CClientQ::DisconnectAll()
 {
-  //    cerr << "ClientQ Disconnecting ALL! <--" << endl;
+  string method("CClientQ::DisconnectAll");
+  traceBegin(method);
 
-    CClient* pClient = NULL;
-    pthread_mutex_lock(&m_lock);
-
-    while(!m_queue.empty())
-    {
-        pClient = m_queue.front();
-        m_queue.pop();
-        delete pClient;
-    }
-
-    pthread_mutex_unlock(&m_lock);
-
-    //    cerr << "ClientQ Disconnecting ALL! -->" << endl;
-
+  CClient* pClient = NULL;
+  lock();
+  
+  while(!m_queue.empty()) {
+    pClient = m_queue.front();
+    m_queue.pop();
+    delete pClient;
+  }
+  
+  unlock();
+  
+  traceEnd(method);
+  
 } // DisconnectAll
