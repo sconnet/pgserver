@@ -7,13 +7,16 @@
 //
 // Source File Name : pgconfig.h
 //
-// Version          : $Id: $
+// Version          : $Id: pgconfig.h,v 1.1 2001/04/21 06:12:52 sconnet Exp sconnet $
 //
 // File Overview    : Stores all configuration items
 //
 // Revision History : 
 //
-// $Log: $
+// $Log: pgconfig.h,v $
+// Revision 1.1  2001/04/21 06:12:52  sconnet
+// Initial revision
+//
 //
 //
 //*****************************************************************************
@@ -27,52 +30,52 @@ class CPGConfig : public CConfig
 {
  public:
   CPGConfig() :
-    nStatsPort(32902),
-    nAcceptStatsThreadTimeout(1000),
-    nClientPort(32903),
-    nAcceptClientThreadTimeout(1000),
-    nMaxConnectionsPerIP(5),
-    nWorkPoolSize(10),
-    nWorkIdleTime(1000),
-    sLogClientName("NO")
+    nStatsPort_(32902),
+    nAcceptStatsThreadTimeout_(1000),
+    nClientPort_(32903),
+    nAcceptClientThreadTimeout_(1000),
+    nMaxConnectionsPerIP_(5),
+    nWorkPoolSize_(10),
+    nWorkIdleTime_(1000),
+    bLogClientName_(false)
     {}
   ~CPGConfig() {}
   
   bool Read(const string& sFilename)
     {
-      bool ok = Config::Read(sFilename);
+      bool ok = CConfig::Read(sFilename);
       if(ok) {
-        nStatsPort = GetValueAsInt("StatsPort", nStatsPort);
-        nAcceptStatsThreadTimeout = GetValueAsInt("AcceptStatsThreadTimeout",
-                                                  nAcceptStatsThreadTimeout);
-        nClientPort = GetValueAsInt("ClientPort", nClientPort);
-        nAcceptClientThreadTimeout = GetValueAsInt("acceptclientthreadtimeout",
-                                                   nAcceptClientThreadTimeout);
-        nMaxConnectionsPerIP = GetValueAsInt("MaxConnectionsPerIP", nMaxConnectionsPerIP);
-        nWorkPoolSize = GetValueAsInt("WorkPoolSize", nWorkPoolSize);
-        nWorkIdleTime = GetValueAsInt("WorkIdleTime", nWorkIdleTime);
-        sLogClientName = GetValueAsStr("LogClientName", sLogClientName);        
+        nStatsPort_ = GetValueAsInt("StatsPort", nStatsPort_);
+        nAcceptStatsThreadTimeout_ = GetValueAsInt("AcceptStatsThreadTimeout",
+                                                  nAcceptStatsThreadTimeout_);
+        nClientPort_ = GetValueAsInt("ClientPort", nClientPort_);
+        nAcceptClientThreadTimeout_ = GetValueAsInt("acceptclientthreadtimeout",
+                                                   nAcceptClientThreadTimeout_);
+        nMaxConnectionsPerIP_ = GetValueAsInt("MaxConnectionsPerIP", nMaxConnectionsPerIP_);
+        nWorkPoolSize_ = GetValueAsInt("WorkPoolSize", nWorkPoolSize_);
+        nWorkIdleTime_ = GetValueAsInt("WorkIdleTime", nWorkIdleTime_);
+        bLogClientName_ = GetValueAsStr("LogClientName", "NO") == "YES";
       }
       return ok;
     }
 
-  inline int GetAcceptStatsThreadTimeout() { return nAcceptStatsThreadTimeout; }
-  inline int GetClientPort() { return nClientPort; }
-  inline int GetAcceptClientThreadTimeout() { return nAcceptClientThreadTimeout; }
-  inline int GetMaxConnectionsPerIP() { return nMaxConnectionsPerIP; }
-  inline int GetWorkPoolSize() { return nWorkPoolSize; }
-  inline int GetWorkIdleTime() { return nWorkIdleTime; }
-  inline const string& GetLogClientName() { return sLogClientName; }
+  inline int AcceptStatsThreadTimeout() { return nAcceptStatsThreadTimeout_; }
+  inline int ClientPort() { return nClientPort_; }
+  inline int AcceptClientThreadTimeout() { return nAcceptClientThreadTimeout_; }
+  inline int MaxConnectionsPerIP() { return nMaxConnectionsPerIP_; }
+  inline int WorkPoolSize() { return nWorkPoolSize_; }
+  inline int WorkIdleTime() { return nWorkIdleTime_; }
+  inline bool LogClientName() { return bLogClientName_; }
 
  private:
-  int nStatsPort;
-  int nAcceptStatsThreadTimeout;
-  int nClientPort;
-  int nAcceptClientThreadTimeout;
-  int nMaxConnectionsPerIP;
-  int nWorkPoolSize;
-  int nWorkIdleTime;
-  string sLogClientName;
+  int nStatsPort_;
+  int nAcceptStatsThreadTimeout_;
+  int nClientPort_;
+  int nAcceptClientThreadTimeout_;
+  int nMaxConnectionsPerIP_;
+  int nWorkPoolSize_;
+  int nWorkIdleTime_;
+  bool bLogClientName_;
 };
 
 #endif // __PGCONFIG_H_
