@@ -1,0 +1,75 @@
+#*****************************************************************************
+#
+# Copyright (C) 20012 Pear Gear, Inc.  All rights reserved.
+#
+# Programmer       : Steve Connet
+#                    Feb. 8, 2001
+#
+# Source File Name : makefile
+#
+# Version          : $Id: $
+#
+# File Overview    : Makefile to make the Pear Gear server
+#
+# Revision History : 
+#
+# $Log: $
+#
+#*****************************************************************************
+
+target = pgserver
+
+release = -O2 -Wall -D_REENTRANT -pthread -D_THREAD_SAFE
+debug = -ggdb -D_REENTRANT -pthread -D_THREAD_SAFE
+flags = $(release)
+#flags = $(debug)
+
+objects = pgserver.o \
+          listen.o \
+          acceptstats.o \
+          acceptclient.o \
+          config.o \
+          thread.o \
+          utils.o \
+          client.o \
+          connectcount.o \
+          clientQ.o \
+          workpool.o \
+          work.o \
+          pollclients.o
+
+# build the target
+$(target): $(objects)
+	$(CXX) $(flags) -o $(target) $(objects)
+	@echo "SETTING PERMISSIONS FOR DEVEL GROUP..."
+	chmod 660 *.o
+	chmod 770 $(target)
+
+# build the objects
+.cpp.o:
+	$(CXX) $(flags) $*.cpp -c -o $@
+
+depends: 
+	rm -f makefile
+	cp make.default makefile
+	@echo "GENERATING DEPENDENCIES..."
+	$(CXX) $(flags) -M *.cpp >> makefile
+
+all:
+	gmake clean
+	gmake depends
+	gmake
+
+install:
+	if [ -f pgserver ]; then cp pgserver /usr/local/bin; fi
+	if [ -f pgserver.conf]; then cp pgserver.conf /etc; fi
+
+clean: 
+	@if [ -f $(target) ]; then rm $(target); fi
+	@for file in $(objects); do \
+		if [ -f $$file ]; then \
+			rm $$file; \
+		fi; \
+	done
+
+# automatically generated dependencies
