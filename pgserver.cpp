@@ -7,40 +7,40 @@
 //
 // Source File Name : pgserver.cpp
 //
-// Version          : $Id: $
+// Version          : $Id: pgserver.cpp,v 1.1 2001/04/21 02:51:43 sconnet Exp sconnet $
 //
 // File Overview    : main launch point of the Peer Gear server
 //
 // Revision History : 
 //
-// $Log: $
+// $Log: pgserver.cpp,v $
+// Revision 1.1  2001/04/21 02:51:43  sconnet
+// Initial revision
+//
 //
 //*****************************************************************************
 
 #include "pgserver.h"
-#include "config.h"
+#include "pgconfig.h"
 #include "acceptstats.h"
 #include "acceptclient.h"
 #include "connectcount.h"
-#include "clientQ.h"
+#include "safeQ.h"
+#include "client.h"
 #include "workpool.h"
 #include "pollclients.h"
 
-#include <string>
-
-#include <signal.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
 
 // global variables
 volatile sig_atomic_t g_bQuit = false;
-string g_sConfigfile = "/etc/pgserver.conf";
+string g_sConfigfile("/etc/pgserver.conf");
 
-CConfig g_cfg;
+CPGConfig g_cfg;
 CConnectCount g_connectCount;
-CClientQ g_loginQ;
-CClientQ g_commQ;
+CSafeQ<CClient> g_loginQ;
+CSafeQ<CClient> g_commQ;
 CPollClients g_pollClients;
 
 // function prototypes
@@ -61,11 +61,16 @@ int daemon_init(void);
 //
 int main(int argc, char* argv[])
 {
+  string fn("main");
+  traceBegin(fn);
+  
   // become a daemon
+#ifndef _DEBUG
   if(daemon_init() < 0) {
     cerr << "Could not initialize as a daemon process." << endl;
     exit(1);
   }
+#endif
   
   // setup signals to catch
   signal(SIGTERM, SignalHandler);
@@ -78,21 +83,25 @@ int main(int argc, char* argv[])
   signal(SIGPIPE, SIG_IGN);     // handle pipe err's in socket comm.
   
   // Tell the syslog we are alive
-  syslog(LOG_INFO, "Peer Gear Server v0.01 starting up!");
+  SYSLOG(LOG_INFO, "Peer Gear Server v0.01 starting up!");
   ReadConfigurationFile();
+  
+#ifdef _DEBUG
+  cout << g_cfg;
+#endif
   
   // Start listening for incoming connections on the stats port
   CAcceptStats acceptStats;
-  acceptStats.Start();
+  acceptStats.start();
   
   // Start listening for incoming connections on the clients port
   CAcceptClient acceptClient;
-  acceptClient.Start();
+  acceptClient.start();
   
   // Create thread pool of worker objects to do all the work
   CWorkPool workPool;
-  workPool.Start();
-  g_pollClients.Start();
+  workPool.start();
+  g_pollClients.start();
   
   // block nothing, sleep until signaled to quit
   sigset_t emptyset;
@@ -102,18 +111,29 @@ int main(int argc, char* argv[])
     sigsuspend(&emptyset);
   
   // inform the world we are stopping
-  syslog(LOG_INFO, "Shutting down...");
-  acceptStats.Stop();
-  acceptClient.Stop();
-  workPool.Stop();
-  g_pollClients.Stop();
+  SYSLOG(LOG_INFO, "Shutting down...");
+  DEBUG(fn, "  acceptStats.stop();\n");
+  acceptStats.stop();
+  DEBUG(fn, "  acceptClient.stop();\n");
+  acceptClient.stop();
+  DEBUG(fn, "  workPool.stop();\n");
+  workPool.stop();
+  DEBUG(fn, "  g_pollClients.stop();\n");
+  g_pollClients.stop();
   
+  // Clean up
+  g_loginQ.trigger(true);
+  g_commQ.trigger(true);
+
+  DEBUG(fn, "trigger's set\n");
   // disconnect clients lingering in the client queues
-  g_loginQ.DisconnectAll();
-  g_commQ.DisconnectAll();
-  g_pollClients.DisconnectAll();
+  //  g_loginQ.disconnectAll();
+  //  g_commQ.disconnectAll();
+  g_pollClients.disconnectAll();
   
-  syslog(LOG_INFO, "Exit Success!");
+  SYSLOG(LOG_INFO, "Exit Success!");
+  
+  traceEnd(fn);
   return EXIT_SUCCESS;
   
 } // main
@@ -131,27 +151,31 @@ int main(int argc, char* argv[])
 //
 void SignalHandler(int signum)
 {
-    signal(signum, SignalHandler);
-    syslog(LOG_INFO, "Signal caught: %d", signum);
-
-    switch(signum)
-    {
-      case SIGTERM:
-      case SIGINT:
-          g_bQuit = true;
-          break;
-
-      // Reconfigure
-      case SIGHUP:
-          // this may be unsafe
-          ReadConfigurationFile();
-          break;
-
-      case SIGUSR1:
-      case SIGUSR2:
-          break;
-    }
-
+  string fn("SignalHandler");
+  traceBegin(fn);
+  
+  signal(signum, SignalHandler);
+  SYSLOG(LOG_INFO, "Signal caught: %d", signum);
+  
+  switch(signum) {
+  case SIGTERM:
+  case SIGINT:
+    g_bQuit = true;
+    break;
+    
+    // Reconfigure
+  case SIGHUP:
+    // this may be unsafe
+    ReadConfigurationFile();
+    break;
+    
+  case SIGUSR1:
+  case SIGUSR2:
+    break;
+  }
+  
+  traceEnd(fn);
+  
 } // SignalHandler
 
 
@@ -167,12 +191,16 @@ void SignalHandler(int signum)
 //
 void ReadConfigurationFile()
 {
-  if(g_cfg.Read(g_sConfigfile) == false)
-    syslog(LOG_WARNING, 
-           "Error reading '%s' -- using default values.", 
-           g_sConfigfile);
+  string fn("ReadConfigurationFile");
+  traceBegin(fn);
+  
+  if(g_cfg.read(g_sConfigfile) == false)
+    SYSLOG(LOG_WARNING, "Error reading '%s' -- using default values.", 
+           g_sConfigfile.c_str());
   else
-    syslog(LOG_INFO, "Config file loaded: %s", g_sConfigfile);
+    SYSLOG(LOG_INFO, "Config file loaded: %s", g_sConfigfile.c_str());
+  
+  traceEnd(fn);
   
 } // ReadConfigurationFile
 
@@ -191,20 +219,24 @@ void ReadConfigurationFile()
 //
 int daemon_init(void)
 {
-    pid_t pid;
-    
-    if ( (pid = fork()) < 0)
-        return(-1);
-    else if (pid != 0)
-        exit(0);          /* parent goes bye-bye */
-
-    /* child continues */
-    setsid();             /* become session leader */
-
-    chdir("/");           /* change working directory */
-
-    umask(0);             /* clear our file mode creation mask */
-
-    return(0);
-
+  string fn("daemon_init");
+  traceBegin(fn);
+   
+  pid_t pid;
+  
+  if ( (pid = fork()) < 0)
+    return(-1);
+  else if (pid != 0)
+    exit(0);            /* parent goes bye-bye */
+  
+  /* child continues */
+  setsid();             /* become session leader */
+  
+  chdir("/");           /* change working directory */
+  
+  umask(0);             /* clear our file mode creation mask */
+  
+  traceEnd(fn);
+  return(0);
+  
 } // daemon_init

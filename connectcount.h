@@ -7,7 +7,7 @@
 //
 // Source File Name : connectcount.h
 //
-// Version          : $Id: $
+// Version          : $Id: connectcount.h,v 1.1 2001/04/21 02:51:43 sconnet Exp sconnet $
 //
 // File Overview    : Keeps track of the number of connections
 //                    for each unique ip address. Does not allow
@@ -21,7 +21,10 @@
 //
 // Revision History : 
 //
-// $Log: $
+// $Log: connectcount.h,v $
+// Revision 1.1  2001/04/21 02:51:43  sconnet
+// Initial revision
+//
 //
 //*****************************************************************************
 // we write a class so that this map is
@@ -35,31 +38,30 @@
 #ifndef __CONNECTCOUNT_H_
 #define __CONNECTCOUNT_H_
 
-#include <pthread.h>
+#include "lock.h"
 
 #include <string>
 #include <map>
 typedef map<string /* ipaddr */, int /* count */> CountMap;
 
-class CConnectCount
+class CConnectCount : private CLock
 {
   public:
-    CConnectCount();
-    virtual ~CConnectCount();
-
-    inline bool operator+=(const char* sIpAddr) { return Insert(sIpAddr); }
-    inline bool operator-=(const char* sIpAddr) { return Erase(sIpAddr); }
-    inline int operator<<(const char* sIpAddr) { return GetCount(sIpAddr); }
-    int GetTotal();
-
-  private:
-    bool Insert(const char* sIpAddr);
-    bool Erase(const char* sIpAddr);
-    int GetCount(const char* sIpAddr);
-
-  private:
-    CountMap m_map;
-    pthread_mutex_t m_lock;
+  CConnectCount() {}
+  virtual ~CConnectCount() {}
+  
+  inline bool operator+=(const string& sIpAddr) { return Insert(sIpAddr); }
+  inline bool operator-=(const string& sIpAddr) { return Erase(sIpAddr); }
+  inline int operator<<(const string& sIpAddr) { return GetCount(sIpAddr); }
+  int GetTotal() const;
+  
+ private:
+  bool Insert(const string& sIpAddr);
+  bool Erase(const string& sIpAddr);
+  int GetCount(const string& sIpAddr) const;
+  
+ private:
+  CountMap m_map;
 };
 
 #endif // __CONNECTCOUNT_H_

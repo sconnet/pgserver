@@ -7,7 +7,7 @@
 //
 // Source File Name : utils.h
 //
-// Version          : $Id: $
+// Version          : $Id: utils.h,v 1.1 2001/04/21 02:51:43 sconnet Exp sconnet $
 //
 // File Overview    : Some utility functions I needed to do various
 //                    string manipulations and read/write all data
@@ -16,26 +16,32 @@
 //
 // Revision History : 
 //
-// $Log: $
+// $Log: utils.h,v $
+// Revision 1.1  2001/04/21 02:51:43  sconnet
+// Initial revision
+//
 //
 //*****************************************************************************
 
 #ifndef __UTILS_H_
 #define __UTILS_H_
 
+#include <string>
 #include <unistd.h>
 
-char* strrev(char* str);
-char* trim_left(char* p);
-char* trim_right(char* p);
+string trimLeft(const string &value);
+string trimRight(const string &value);
 
 ssize_t Read(int fd, void* buf, size_t count);
 ssize_t Write(int fd, const void* buf, size_t count);
 
+void traceBegin(const string& method);
+void traceEnd(const string& method);
+void TRACE(const string& method, const char* fmt, ...);
+void DEBUG(const string& method, const char* fmt, ...);
+void SYSLOG(int code, const char* fmt, ...);
+
+void makeTimespec(int nTimeout /* ms */, struct timespec& ts);
+
 #endif // __UTILS_H_
 
-
-//*****************************************************************************
-//
-// Security Classification: UNCLASSIFIED
-//                                   

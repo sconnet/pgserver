@@ -7,21 +7,24 @@
 //
 // Source File Name : acceptstats.cpp
 //
-// Version          : $Id: $
+// Version          : $Id: acceptstats.cpp,v 1.1 2001/04/21 02:51:43 sconnet Exp sconnet $
 //
 // File Overview    : Implementation of stats spewer
 //
 // Revision History : 
 //
-// $Log: $
+// $Log: acceptstats.cpp,v $
+// Revision 1.1  2001/04/21 02:51:43  sconnet
+// Initial revision
+//
 //
 //*****************************************************************************
 
 #include "pgserver.h"
 #include "acceptstats.h"
-#include "config.h"
+#include "pgconfig.h"
 
-extern CConfig g_cfg;
+extern CPGConfig g_cfg;
 
 //
 //-------------------------------------------------------------------------
@@ -35,27 +38,15 @@ extern CConfig g_cfg;
 //
 CAcceptStats::CAcceptStats()
 {
-    DisplayLocalHost();
+  string method("CAcceptStats::CAcceptStats");
+  traceBegin(method);
+  displayLocalHost();
+  traceEnd(method);
 }
 
 //
 //-------------------------------------------------------------------------
-// Function       : CAcceptStats::~CAcceptStats()
-//
-// Implementation : Destructor
-//
-// Author         : Steve Connet
-//
-//-------------------------------------------------------------------------
-//
-CAcceptStats::~CAcceptStats()
-{
-}
-
-
-//
-//-------------------------------------------------------------------------
-// Function       : void CAcceptStats::Start()
+// Function       : void CAcceptStats::start()
 //
 // Implementation : Perform initialization and start the listening thread
 //
@@ -63,20 +54,25 @@ CAcceptStats::~CAcceptStats()
 //
 //-------------------------------------------------------------------------
 //
-void CAcceptStats::Start()
+void CAcceptStats::start()
 {
-    // do initialization here
+  string method("CAcceptStats::start");
+  traceBegin(method);
 
-    // call base class
-    CListen::Start(g_cfg(STATPORT_STR, STATPORT), 
-                   g_cfg(ACCEPTSTATS_THREAD_TIMEOUT_STR, ACCEPTSTATS_THREAD_TIMEOUT));
-
-} // Start
+  // do initialization here
+  
+  // call base class
+  CListen::start(g_cfg.statsPort(),
+                 g_cfg.acceptStatsThreadTimeout());
+  
+  traceEnd(method);
+  
+} // start
 
 
 //
 //-------------------------------------------------------------------------
-// Function       : void CAcceptStats::Stop()
+// Function       : void CAcceptStats::stop(bool waitForThreadJoin = true)
 //
 // Implementation : Clean up and stop listening thread
 //
@@ -84,19 +80,24 @@ void CAcceptStats::Start()
 //
 //-------------------------------------------------------------------------
 //
-void CAcceptStats::Stop()
+void CAcceptStats::stop(bool waitForThreadJoin = true)
 {
-    // clean up
+  string method("CAcceptStats::stop");
+  traceBegin(method);
 
-    // call base class
-    CListen::Stop();
+  // clean up
 
-} // Stop
+  // call base class
+  CListen::stop(waitForThreadJoin);
+  
+  traceEnd(method);
+  
+} // stop
 
 
 //
 //-------------------------------------------------------------------------
-// Function       : void CAcceptStats::OnAccept(CClient* pClient)
+// Function       : void CAcceptStats::onAccept(const CClient& client)
 //
 // Implementation : Spew statistics to client
 //
@@ -104,14 +105,21 @@ void CAcceptStats::Stop()
 //
 //-------------------------------------------------------------------------
 //
-void CAcceptStats::OnAccept(CClient* pClient)
+void CAcceptStats::onAccept(const CClient& client)
 {
-    // tell stats object to spew data to this fd
-//TODO:    g_Stats.Spew(pClient->Getfd());
-// problem.. need to lock fd. fd is private
-//TODO:    g_Stats << pClient->Getfd();
-
-  //    cerr << "dumping stats to client..." << endl;
-    delete pClient;
-
-} // OnAccept
+  string method("CAcceptStats::onAccept");
+  traceBegin(method);
+  
+  // tell stats object to spew data to this fd
+  // maybe put them in a queue
+  // then the stats object will read the queue and dump the stats
+  // that way we return immediately for more accepts
+  //TODO:    g_Stats.Spew(pClient->Getfd());
+  // problem.. need to lock fd. fd is private
+  //TODO:    g_Stats << pClient->Getfd();
+  
+  client.disconnect();
+  
+  traceEnd(method);
+  
+} // onAccept

@@ -7,21 +7,24 @@
 //
 // Source File Name : work.cpp
 //
-// Version          : $Id: $
+// Version          : $Id: work.cpp,v 1.1 2001/04/21 02:51:43 sconnet Exp sconnet $
 //
 // File Overview    : Implementation of the work thread object
 //
 // Revision History : 
 //
-// $Log: $
+// $Log: work.cpp,v $
+// Revision 1.1  2001/04/21 02:51:43  sconnet
+// Initial revision
+//
 //
 //*****************************************************************************
 
 #include "pgserver.h"
 #include "work.h"
-#include "clientQ.h"
-#include "config.h"
-#include "utils.h"
+#include "safeQ.h"
+#include "client.h"
+#include "pgconfig.h"
 #include "pollclients.h"
 
 #include <algorithm>
@@ -29,43 +32,15 @@
 #include <sys/socket.h>
 #include <signal.h>      // for signal blocking
 
-extern CClientQ g_loginQ;
-extern CClientQ g_commQ;
-extern CConfig g_cfg;
+extern CSafeQ<CClient> g_loginQ;
+extern CSafeQ<CClient> g_commQ;
+extern CPGConfig g_cfg;
 extern CPollClients g_pollClients;
 
-//
-//-------------------------------------------------------------------------
-// Function       : CWork::CWork()
-//
-// Implementation : Constructor
-//
-// Author         : Steve Connet
-//
-//-------------------------------------------------------------------------
-//
-CWork::CWork()
-{
-}
 
 //
 //-------------------------------------------------------------------------
-// Function       : CWork::~CWork()
-//
-// Implementation : Destructor
-//
-// Author         : Steve Connet
-//
-//-------------------------------------------------------------------------
-//
-CWork::~CWork()
-{
-}
-
-
-//
-//-------------------------------------------------------------------------
-// Function       : void CWork::Start()
+// Function       : void CWork::start()
 //
 // Implementation : Perform initialization and start work thread
 //
@@ -73,19 +48,24 @@ CWork::~CWork()
 //
 //-------------------------------------------------------------------------
 //
-void CWork::Start()
+void CWork::start()
 {
-    // Perform initialization here
+  string method("CWork::start");
+  traceBegin(method);
+  
+  // Perform initialization here
+  
+  // Call base class to start thread
+  CThread::start();
 
-    // Call base class to start thread
-    CThread::Start();
-
-} // Start
+  traceEnd(method);
+  
+} // start
 
 
 //
 //-------------------------------------------------------------------------
-// Function       : void CWork::Stop()
+// Function       : void CWork::stop(bool waitForThreadJoin = true);
 //
 // Implementation : Perform clean up and stop the work thread
 //
@@ -93,93 +73,49 @@ void CWork::Start()
 //
 //-------------------------------------------------------------------------
 //
-void CWork::Stop()
+void CWork::stop(bool waitForThreadJoin = true)
 {
-    // Clean up
+  string method("CWork::stop");
+  traceBegin(method);
 
-    // Call base class to stop thread
-    CThread::Stop();
+  // Call base class to stop thread
+  CThread::stop(waitForThreadJoin);
 
-} // Stop
+  traceEnd(method);
+  
+} // stop
 
 //
 //-------------------------------------------------------------------------
-// Function       : void CWork::Thread()
+// Function       : void CWork::thread()
 //
-// Implementation : Checks for clients on the login queue and for clients 
-//                  ready to communication on the commQ
+// Implementation : Check and process the client queues
 //
 // Author         : Steve Connet
 //
 //-------------------------------------------------------------------------
 //
-void CWork::Thread()
+void CWork::thread()
 {
-    // TODO: maybe this should go in the base class CThread
-    // block these signals, we want main to handle them
-    // main is da man!
-    sigset_t intmask;
-    sigemptyset(&intmask);
-    sigaddset(&intmask, SIGINT);
-    pthread_sigmask(SIG_BLOCK, &intmask, NULL);
+  string method("CWork::thread");
+  traceBegin(method);
+  
+  // TODO: maybe this should go in the base class CThread
+  // block these signals, we want main to handle them
+  // main is da man!
+  sigset_t intmask;
+  sigemptyset(&intmask);
+  sigaddset(&intmask, SIGINT);
+  pthread_sigmask(SIG_BLOCK, &intmask, NULL);
 
-    CClient* pClient = NULL;
-    int nTimeout = g_cfg(WORK_IDLE_STR, WORK_IDLE);
+  while(true) {
+    ProcessQueue();
 
-    // keep going forever until we see a kill event
-    while(true)
-    {
-        // idle
-        if(WaitForKillEvent(nTimeout))
-            break;
-
-        // Check for clients in the loginQ
-        if(g_loginQ >> pClient)
-        {
-          //            cerr << "Client in login q ... putting in pollClients" << endl;
-            // login client
-            // put on pollClients
-            g_pollClients << pClient;
-        }
-
-        // Check for clients in the commQ
-        if(g_commQ >> pClient)
-        {
-          //            cerr << "Msg from client <-- " << endl;
-            int nMsg = 0;
-            int nRes;
-
-            // TODO: this line looks too complicated, simplify it
-            if((nRes = (*pClient >> nMsg)) > 0)
-            {
-              //    cerr << "Msg from client -->  " << nMsg << endl;
-
-                // search, identify, chat, disconnect, etc.
-                switch(nMsg)
-                {
-                    case MSG_DISCONNECT:
-                        break;
-                    case MSG_SEARCHRESULT:
-                        break;
-                    case MSG_USERID:
-                        break;
-                }
-                
-                // insert client back in pollClients
-                g_pollClients << pClient;
-            }
-            else
-            {
-               // disconnect client
-              //               syslog(LOG_WARNING, "Error reading client %s:%d, disconnecting", 
-              //                      pClient->GetIpAddr(), pClient->GetPort());
-
-               g_pollClients >> pClient; // erase
-               delete pClient;
-            }                
-        }
-
-    } // end while loop
-
-} // Thread
+    if(waitForKillEvent(g_cfg.workIdleTime()))
+      break;
+  }
+  
+  traceEnd(method);
+  
+} // thread
 

@@ -7,15 +7,18 @@
 //
 // Source File Name : thread.h
 //
-// Version          : $Id: $
+// Version          : $Id: thread.h,v 1.1 2001/04/21 02:51:43 sconnet Exp sconnet $
 //
-// File Overview    : Base class the gives derived classes threaded
+// File Overview    : Abstract class that gives derived classes threaded
 //                    functionality. Derived classes MUST override the
 //                    pure virtual function "Thread()".
 //
 // Revision History : 
 //
-// $Log: $
+// $Log: thread.h,v $
+// Revision 1.1  2001/04/21 02:51:43  sconnet
+// Initial revision
+//
 //
 //*****************************************************************************
 
@@ -24,34 +27,30 @@
 
 #include <pthread.h>
 
-typedef struct timespec TIMESPEC;
-
 class CThread
 {
-public:
-    CThread();
-    virtual ~CThread();
-
-    virtual void Start();
-    virtual void Stop();
-    bool WaitForKillEvent(int nTimeout);
-    pthread_t GetThreadId() { return m_tid; }
-
-private:
-    // thread id
-    pthread_t m_tid;
-    
-    // kill event variables
-    pthread_cond_t m_killCondition;
-    pthread_mutex_t m_killLock;
-    bool m_bKillEventSet;
-
-    TIMESPEC MakeTimespec(int nTimeout);
-
-    // pure virtual function must be overridden by subclassed objects
-    virtual void Thread() = 0;
-    static void* _Thread(void* pData) 
-        { reinterpret_cast<CThread*>(pData)->Thread(); return 0; }
+ public:
+  CThread();
+  virtual ~CThread();
+  
+  virtual void start();
+  virtual void stop(bool waitForThreadJoin = true);
+  bool waitForKillEvent(int nTimeout = 0);
+  pthread_t gtThreadId() { return m_tid; }
+  
+ private:
+  // thread id
+  pthread_t m_tid;
+  
+  // kill event variables
+  pthread_cond_t m_killCondition;
+  pthread_mutex_t m_killLock;
+  bool m_bKillEventSet;
+  
+  // pure virtual function must be overridden by subclassed objects
+  virtual void thread() = 0;
+  static void* _thread(void* pData) 
+    { reinterpret_cast<CThread*>(pData)->thread(); return 0; }
 };
 
 #endif // __THREAD_H_

@@ -7,52 +7,62 @@
 #
 # Source File Name : makefile
 #
-# Version          : $Id: $
+# Version          : $Id: makefile,v 1.2 2001/04/21 06:15:31 sconnet Exp sconnet $
 #
 # File Overview    : Makefile to make the Pear Gear server
 #
 # Revision History : 
 #
-# $Log: $
+# $Log: makefile,v $
+# Revision 1.2  2001/04/21 06:15:31  sconnet
+# performed a make depends
+#
+# Revision 1.1  2001/04/21 02:52:14  sconnet
+# Initial revision
+#
 #
 #*****************************************************************************
 
 target = pgserver
 
-release = -O2 -Wall -D_REENTRANT -pthread -D_THREAD_SAFE
-debug = -ggdb -D_REENTRANT -pthread -D_THREAD_SAFE
-flags = $(release)
+standard = -Wall -D_REENTRANT -D_THREAD_SAFE -pthread
+release = -O2 $(standard)
+debug = -ggdb -D_DEBUG $(standard)
+trace = -D_TRACE $(debug)
+
+#flags = $(release)
 #flags = $(debug)
+flags = $(trace)
 
 objects = pgserver.o \
           listen.o \
           acceptstats.o \
           acceptclient.o \
           config.o \
+          pgconfig.o \
           thread.o \
           utils.o \
           client.o \
           connectcount.o \
-          clientQ.o \
           workpool.o \
           work.o \
-          pollclients.o
+          pollclients.o \
+          workloginQ.o \
+          workcommQ.o
 
 # build the target
 $(target): $(objects)
-	$(CXX) $(flags) -o $(target) $(objects)
-	@echo "SETTING PERMISSIONS FOR DEVEL GROUP..."
-	chmod 660 *.o
-	chmod 770 $(target)
+	$(CXX) $(flags) -o $(target) $(objects) -lpthread
+	@chmod 660 *.o
+	@chmod 770 $(target)
 
 # build the objects
 .cpp.o:
 	$(CXX) $(flags) $*.cpp -c -o $@
 
 depends: 
-	rm -f makefile
-	cp make.default makefile
-	@echo "GENERATING DEPENDENCIES..."
+	@rm -f makefile
+	@cp make.default makefile
 	$(CXX) $(flags) -M *.cpp >> makefile
 
 all:
@@ -62,7 +72,7 @@ all:
 
 install:
 	if [ -f pgserver ]; then cp pgserver /usr/local/bin; fi
-	if [ -f pgserver.conf]; then cp pgserver.conf /etc; fi
+	if [ -f pgserver.conf ]; then cp pgserver.conf /etc; fi
 
 clean: 
 	@if [ -f $(target) ]; then rm $(target); fi

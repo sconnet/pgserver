@@ -7,96 +7,27 @@
 //
 // Source File Name : utils.cpp
 //
-// Version          : $Id: $
+// Version          : $Id: utils.cpp,v 1.1 2001/04/21 02:51:43 sconnet Exp sconnet $
 //
 // File Overview    : Implementation of the utility functions.
 //
 // Revision History : 
 //
-// $Log: $
+// $Log: utils.cpp,v $
+// Revision 1.1  2001/04/21 02:51:43  sconnet
+// Initial revision
+//
 //
 //*****************************************************************************
 
-#ifdef _DEBUG_
-#include <stdio.h> // for debug msg's
-#endif //_DEBUG_
-
 #include "utils.h"
-#include <string.h>
-#include <ctype.h>
-#include <unistd.h>
 
-//
-//-------------------------------------------------------------------------
-// Function       : char *strrev(char* str)
-//
-// Implementation : Reverse the passed character string. The passed string
-//                  must be NULL terminated. Returns a pointer to the
-//                  beginning of the reversed string.
-//
-// Author         : Steve Connet
-//
-//-------------------------------------------------------------------------
-//
-char* strrev(char* str)
-{
-    char *p1 = NULL;
-    char *p2 = NULL;
+#include <iostream>
+#include <cctype>
+#include <cstdio>
 
-    if (! str || ! *str)
-        return str;
-
-    for (p1 = str, p2 = str + strlen(str) - 1; p2 > p1; ++p1, --p2)
-    {
-        *p1 ^= *p2;
-        *p2 ^= *p1;
-        *p1 ^= *p2;
-    }
-
-    return (str);
-
-} // strrev
-
-
-//
-//-------------------------------------------------------------------------
-// Function       : char* trim_left(char* p)
-//
-// Implementation : Moves the passed pointer forward until there are
-//                  no more spaces. Returns the incremented pointer.
-//                  Do not use this with dynamically allocted strings.
-//
-// Author         : Steve Connet
-//
-//-------------------------------------------------------------------------
-//
-char* trim_left(char* p)
-{
-    while(isspace(*p))
-        ++p;
-    
-    return (p);
-
-} // trim_left
-
-
-//
-//-------------------------------------------------------------------------
-// Function       : char* trim_right(char* p)
-//
-// Implementation : Reverses the string then calles trim_left. 
-//                  Returns the incremented pointer. 
-//
-// Author         : Steve Connet
-//
-//-------------------------------------------------------------------------
-//
-char* trim_right(char* p)
-{
-    return strrev(trim_left(strrev(p)));
-
-} // trim_right
-
+#include <sys/time.h>
+#include <syslog.h>
 
 //
 //-------------------------------------------------------------------------
@@ -114,26 +45,25 @@ char* trim_right(char* p)
 ssize_t Read(int fd, void* buf, size_t count)
 {
   size_t nTotal = 0;
-  size_t nBytes = 0;
-
+  int nBytes = 0;
+  
   // keep reading until we read everything
-  while(nTotal < count)
-  {
-     // bail out if there is an error reading
-     // 0 indicates EOF (client disconnected)
-     if((nBytes = read(fd, (char*)buf + nTotal, count - nTotal)) <= 0)
-     {
-        nTotal = nBytes;
-        break;
-     }
-     else
-        nTotal += nBytes;
-
-//     printf("reading, %d %d\n", nTotal, nBytes);
+  while(nTotal < count) {
+    
+    // bail out if there is an error reading
+    // 0 indicates EOF (client disconnected)
+    if((nBytes = read(fd, (char*)buf + nTotal, count - nTotal)) <= 0) {
+      nTotal = nBytes;
+      break;
+    }
+    else
+      nTotal += nBytes;
+    
+    //     printf("reading, %d %d\n", nTotal, nBytes);
   }
-
+  
   return nTotal;
-
+  
 } // Read
 
 //
@@ -149,24 +79,237 @@ ssize_t Read(int fd, void* buf, size_t count)
 //
 //-------------------------------------------------------------------------
 //
-
 ssize_t Write(int fd, const void* buf, size_t count)
 {
-   size_t nTotal = 0;
-   size_t nBytes = 0;
-
-   // keep writing until we write everything
-   while(nTotal < count)
-   {
-      if((nBytes = write(fd, (char*)buf + nTotal, count - nTotal)) <= 0)
-      {
-         nTotal = nBytes;
-         break;
-      }
-      else
-         nTotal += nBytes;
-   }
-
-   return nTotal;
-
+  size_t nTotal = 0;
+  int nBytes = 0;
+  
+  // keep writing until we write everything
+  while(nTotal < count) {
+    if((nBytes = write(fd, (char*)buf + nTotal, count - nTotal)) <= 0) {
+      nTotal = nBytes;
+      break;
+    }
+    else
+      nTotal += nBytes;
+  }
+    
+  return nTotal;
+    
 } // Write
+
+
+//
+//-------------------------------------------------------------------------
+// Function       : string trimLeft(const string &value)
+//
+// Implementation : Remove whitespace from the left of the string
+//
+// Author         : Steve Connet
+//
+//-------------------------------------------------------------------------
+//
+string trimLeft(const string &value)
+{
+   string::size_type where = value.find_first_not_of(' ');
+  
+   // string has nothing but space
+   if(where == string::npos)
+     return string();
+   
+   // string has no leading space,
+   // don't copy its contents (assuming COW strings)
+   if(where == 0)
+     return value;
+   
+   return value.substr(where);
+}
+
+
+//
+//-------------------------------------------------------------------------
+// Function       : string trimRight(const string &value)
+//
+// Implementation : Remove whitespace from the right of the string
+//
+// Author         : Steve Connet
+//
+//-------------------------------------------------------------------------
+//
+string trimRight(const string &value)
+{
+  string::size_type where = value.find_last_not_of(' ');
+  
+  // string has nothing but space
+  if(where == string::npos)
+    return string();
+  
+  // string has no trailing space, don't copy its contents
+  if(where == (value.length() - 1))
+    return value;
+  
+  return value.substr(0, where + 1);
+}
+
+
+//
+//-------------------------------------------------------------------------
+// Function       : void traceBegin(const string& method)
+//
+// Implementation : log to stderr if compiled with TRACE
+//
+// Author         : Steve Connet
+//
+//-------------------------------------------------------------------------
+//
+void traceBegin(const string& method)
+{
+#ifdef _TRACE
+  cerr << "TRACE " << method << " <--" << endl;
+#endif
+  
+} // traceBegin
+
+
+//
+//-------------------------------------------------------------------------
+// Function       : void traceEnd(const string& method)
+//
+// Implementation : log to stderr if compiled with TRACE
+//
+// Author         : Steve Connet
+//
+//-------------------------------------------------------------------------
+//
+void traceEnd(const string& method)
+{
+#ifdef _TRACE
+  cerr << "TRACE " << method << " -->" << endl;
+#endif
+
+} // traceEnd
+
+
+//
+//-------------------------------------------------------------------------
+// Function       : void TRACE(const string& method, const char* fmt, ...)
+//
+// Implementation : log to stdout if compiled with _TRACE
+//
+// Author         : Steve Connet
+//
+//-------------------------------------------------------------------------
+//
+void TRACE(const string& method, const char* fmt, ...)
+{
+#ifdef _TRACE
+  char msg[1024];
+  va_list ap;
+  va_start (ap, fmt);
+  int retval = vsnprintf(msg, 1023, fmt, ap);
+  va_end (ap);
+
+  cout << "TRACE " << method << " ";
+  if(retval) {
+    cout << msg;
+    cout << flush;
+  }
+#endif
+  
+} // TRACE              
+
+//
+//-------------------------------------------------------------------------
+// Function       : void DEBUG(const string& method, const char* fmt, ...)
+//
+// Implementation : log to stdout if compiled with _DEBUG
+//
+// Author         : Steve Connet
+//
+//-------------------------------------------------------------------------
+//
+void DEBUG(const string& method, const char* fmt, ...)
+{
+#ifdef _DEBUG
+  char msg[1024];
+  va_list ap;
+  va_start (ap, fmt);
+  int retval = vsnprintf(msg, 1023, fmt, ap);
+  va_end (ap);
+
+  cout << "DEBUG " << method << " ";
+  if(retval) {
+    cout << msg;
+    cout << flush;
+  }
+#endif
+  
+} // DEBUG
+
+
+//
+//-------------------------------------------------------------------------
+// Function       : void SYSLOG(int code, const char* fmt, ...)
+//
+// Implementation : log to stdout if compiled with _DEBUG otherwise
+//                  send to the system log daemon
+//
+// Author         : Steve Connet
+//
+//-------------------------------------------------------------------------
+//
+void SYSLOG(int code, const char* fmt, ...)
+{
+  char msg[1024];
+  va_list ap;
+  va_start (ap, fmt);
+  int retval = vsnprintf(msg, 1023, fmt, ap);
+  va_end (ap);
+  
+  if(retval) {
+#ifndef _DEBUG
+    syslog(code, msg);
+#else
+    cout << msg << endl;
+#endif
+  }
+  
+} // SYSLOG
+
+
+//
+//-------------------------------------------------------------------------
+// Function       :void makeTimespec(int nTimeout /* ms */,
+//                                   struct timespec& ts)
+//
+//
+// Implementation : Returns a timespec struct to be used in a
+//                  pthread_cond_timedwait. nTimeout must be in 
+//                  milliseconds.
+//
+// Author         : Steve Connet
+//
+//-------------------------------------------------------------------------
+//
+void makeTimespec(int nTimeout /* ms */, struct timespec& ts)
+{
+  const long billion = 1000000000L;
+  
+  struct timespec interval;
+  
+  interval.tv_sec = nTimeout / 1000;
+  interval.tv_nsec = (nTimeout % 1000) * 1000000L;
+  
+  struct timeval now;
+  gettimeofday(&now, NULL);
+  ts.tv_sec = now.tv_sec;
+  ts.tv_nsec = now.tv_usec * 1000;
+  
+  if((ts.tv_nsec += interval.tv_nsec) >= billion) {
+    ts.tv_nsec -= billion;
+    ts.tv_sec += 1;
+  }
+
+  ts.tv_sec += interval.tv_sec;
+  
+} // makeTimespec

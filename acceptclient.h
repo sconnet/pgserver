@@ -7,13 +7,16 @@
 //
 // Source File Name : acceptclient.h
 //
-// Version          : $Id: $
+// Version          : $Id: acceptclient.h,v 1.1 2001/04/21 02:51:43 sconnet Exp sconnet $
 //
 // File Overview    : Handle accepted client
 //
 // Revision History : 
 //
-// $Log: $
+// $Log: acceptclient.h,v $
+// Revision 1.1  2001/04/21 02:51:43  sconnet
+// Initial revision
+//
 //
 //*****************************************************************************
 
@@ -25,15 +28,15 @@
 
 class CAcceptClient : public CListen
 {
-public:
-    CAcceptClient();
-    virtual ~CAcceptClient();
-
-    virtual void Start();
-    virtual void Stop();
-
-private:
-    virtual void OnAccept(CClient* pClient);
+ public:
+  CAcceptClient() {}
+  virtual ~CAcceptClient() {}
+  
+  void start();
+  void stop(bool waitForThreadJoin = true);
+  
+ private:
+  void onAccept(const CClient& client);
 };
 
 #endif // __ACCEPTCLIENT_H_

@@ -7,7 +7,7 @@
 //
 // Source File Name : config.h
 //
-// Version          : $Id: config.h,v 1.2 2001/04/21 06:19:51 sconnet Exp sconnet $
+// Version          : $Id: config.h,v 1.3 2001/04/21 06:22:56 sconnet Exp sconnet $
 //
 // File Overview    : Reads in the configuration file once and puts
 //                    each name value pair into a map for quick
@@ -16,6 +16,9 @@
 // Revision History : 
 //
 // $Log: config.h,v $
+// Revision 1.3  2001/04/21 06:22:56  sconnet
+// derived from lock
+//
 // Revision 1.2  2001/04/21 06:19:51  sconnet
 // developmental changes
 //
@@ -30,6 +33,7 @@
 
 #include <map>
 #include <string>
+#include <iostream>
 
 #include "lock.h"
 
@@ -41,18 +45,19 @@ class CConfig : private CLock
   CConfig() {}
   virtual ~CConfig() {}
   
-  virtual bool Read(const string& sFilename);  
-  virtual void Dump();
+  virtual bool read(const string& sFilename);  
   
-  inline string& operator()(const char* szName, const char* szDefault = NULL)
-    { return GetValueAsStr(szName, szDefault); }
+  inline string operator()(const char* szName, const char* szDefault = "")
+    { return getValueAsStr(szName, szDefault); }
   
   inline int operator()(const char* szName, int nDefault = 0)
-    { return GetValueAsInt(szName, nDefault); }
+    { return getValueAsInt(szName, nDefault); }
+
+  friend ostream& operator<<(ostream& out, const CConfig& cfg);
 
  protected:
-  string& GetValueAsStr(const char* szName, const char* szDefault = NULL);
-  int GetValueAsInt(const char* szName, int nDefault = 0);
+  string getValueAsStr(const char* szName, const char* szDefault = "");
+  int getValueAsInt(const char* szName, int nDefault = 0);
   
  private:
   CMap m_map;

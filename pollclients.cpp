@@ -1,142 +1,196 @@
+//*****************************************************************************
+//
+// Copyright (C) 2001 Pear Gear, Inc.  All rights reserved.
+//
+// Programmer       : Steve Connet
+//                    Feb. 10, 2001
+//
+// Source File Name : pollclients.cpp
+//
+// Version          : $Id: $
+//
+// File Overview    : 
+//
+// Revision History : 
+//
+// $Log: $
+//
+//
+//*****************************************************************************
+
 #include "pgserver.h"
 #include "pollclients.h"
-#include "clientQ.h"
+#include "safeQ.h"
+#include "client.h"
 
 #include <sys/time.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <signal.h>
 
-extern CClientQ g_commQ;
+extern CSafeQ<CClient> g_commQ;
 extern CPollClients g_PollClients;
 
 CPollClients::CPollClients() :
   m_nMaxFd(0)
 {
-    pthread_mutex_init(&m_lock, NULL);
-    FD_ZERO(&m_clients);
+  string method("CPollClients::CPollClients");
+  traceBegin(method);  
+  FD_ZERO(&m_clients);
+  traceEnd(method);
 }
 
 CPollClients::~CPollClients()
 {
-    pthread_mutex_destroy(&m_lock);
-    FD_ZERO(&m_clients);
-    m_map.clear();
+  string method("CPollClients::~CPollClients");
+  traceBegin(method);  
+  FD_ZERO(&m_clients);
+  m_map.clear();
+  traceEnd(method);
 }
 
-void CPollClients::Start()
+void CPollClients::start()
 {
-    CThread::Start();
+  string method("CPollClients::start");
+  traceBegin(method);
+  CThread::start();
+  traceEnd(method);
+    
+} // start
 
-} // Start
-
-void CPollClients::Stop()
+void CPollClients::stop(bool waitForThreadJoin = true)
 {
-  //    cerr << "CPollClients::Stop <--" << endl;
+  string method("CPollClients::stop");
+  traceBegin(method);
 
-    CThread::Stop();
-    //    cerr << "CPollClients::Stop -->" << endl;
+  g_commQ.trigger();
+  CThread::stop(waitForThreadJoin);
 
-} // Stop
+  traceEnd(method);
+  
+} // stop
 
-int CPollClients::Size()
+int CPollClients::size()
 {
-    pthread_mutex_lock(&m_lock);
-    int nSize = m_map.size();
-    pthread_mutex_unlock(&m_lock);
-    return nSize;
+  string method("CPollClients::size");
+  traceBegin(method);
+  
+  lock();
+  int nSize = m_map.size();
+  unlock();
 
-} // Size
+  traceEnd(method);
+  return nSize;
 
-void CPollClients::Insert(CClient* pClient)
+} // size
+
+void CPollClients::insert(const CClient& client)
 {
-  //    cerr << "CPollClients::Insert <--" << endl;
+  string method("CPollClients::insert");
+  traceBegin(method);
+  
+  lock();
+  m_map[client.m_fd] = client;
+  unlock();
+  
+  FD_SET(client.m_fd, &m_clients);
 
-    pthread_mutex_lock(&m_lock);
-    m_map[pClient->m_fd] = pClient;
-    pthread_mutex_unlock(&m_lock);
+  // TODO: this may not work if the fd's roll back to a lower number
+  if(m_nMaxFd <= client.m_fd)
+    m_nMaxFd = client.m_fd;
+  
+  traceEnd(method);
+  
+} // insert
 
-    FD_SET(pClient->m_fd, &m_clients);
-    if(m_nMaxFd <= pClient->m_fd)
-        m_nMaxFd = pClient->m_fd;
-
-    //    cerr << "CPollClients::Insert --> " << m_nMaxFd << endl;
-
-} // Insert
-
-void CPollClients::Erase(CClient* pClient)
+void CPollClients::erase(const CClient& client)
 {
-  //    cerr << "CPollClients::Erase <--" << endl;
+  string method("CPollClients::erase");
+  traceBegin(method);
+  
+  lock();
+  m_map.erase(client.m_fd);
+  unlock();
+  FD_CLR(client.m_fd, &m_clients);
 
-    pthread_mutex_lock(&m_lock);
-    m_map.erase(pClient->m_fd);
-    pthread_mutex_unlock(&m_lock);
+  traceEnd(method);
+  
+} // erase
 
-    FD_CLR(pClient->m_fd, &m_clients);
-
-    //cerr << "CPollClients::Erase -->" << endl;
-
-} // Erase
-
-void CPollClients::DisconnectAll()
+void CPollClients::disconnectAll()
 {
-  //    cerr << "PollClients Disconnecting ALL! <--" << endl;
+  string method("CPollClients::disconnectAll");
+  traceBegin(method);
+  
+  lock();
+  ClientMap::iterator p = m_map.begin();
+  while(p != m_map.end())
+    ((p++)->second).disconnect();
+  unlock();
+  
+  traceEnd(method);
 
-    pthread_mutex_lock(&m_lock);
-    ClientMap::iterator p = m_map.begin();
-    while(p != m_map.end())
-        delete (p++)->second;
-    pthread_mutex_unlock(&m_lock);
+} // disconnectAll
 
-    //    cerr << "PollClients Disconnecting ALL! -->" << endl;
-
-} // DisconnectAll
-
-void CPollClients::Thread()
+void CPollClients::thread()
 {
-    struct timeval timeout;
-    timeout.tv_sec = 0;
-    timeout.tv_usec = 250000; // 250ms
+  string method("CPollClients::thread");
+  traceBegin(method);
+  
+  // block these signals, we want main to handle them
+  // main is da man!
+  sigset_t intmask;
+  sigemptyset(&intmask);
+  sigaddset(&intmask, SIGINT);
+  pthread_sigmask(SIG_BLOCK, &intmask, NULL);
 
-    // check for readable clients
-    int fd_max = m_nMaxFd;
-    fd_set read_set;
-    memcpy(&read_set, &m_clients, sizeof(fd_set));
-    int nResult = select(fd_max + 1, &read_set, NULL, NULL, &timeout);
+  const int secs = 0;
+  const int usecs = 250000; // 250ms
 
-    while(nResult != -1)
-    {
-        // check for kill event
-        if(WaitForKillEvent(0))
-            break;
+  struct timeval timeout;
+  timeout.tv_sec = secs;
+  timeout.tv_usec = usecs;
+  
+  // check for readable clients
+  int fd_max = m_nMaxFd;
+  fd_set read_set;
+  memcpy(&read_set, &m_clients, sizeof(fd_set));
+  int nResult = select(fd_max + 1, &read_set, NULL, NULL, &timeout);
+  while(nResult != -1) {
 
-        if(nResult > 0)
-        {
-            // find out which file descriptors are set
-            pthread_mutex_lock(&m_lock);
-            ClientMap::iterator p = m_map.begin();
-            while(p != m_map.end())
-            {
-                if(FD_ISSET(p->second->m_fd, &read_set))
-                {
-                    // remove fd from master fd_set
-                    FD_CLR(p->second->m_fd, &m_clients);
+    // check for kill event
+    if(waitForKillEvent())
+      break;
+    
+    if(nResult > 0) {
+      
+      // find out which file descriptors are set
+      lock();
+      ClientMap::iterator p = m_map.begin();
+      while(p != m_map.end()) {
+        if(FD_ISSET(p->second.m_fd, &read_set)) {
+                    
+          // remove fd from master fd_set
+          FD_CLR(p->second.m_fd, &m_clients);
 
-                    // insert client in queue to be read
-                    g_commQ << p->second;
-                }
-
-                // check next fd
-                p++;
-            }
-            pthread_mutex_unlock(&m_lock);
+          // insert client in queue to be read
+          g_commQ << p->second;
         }
-
-        timeout.tv_sec = 0;
-        timeout.tv_usec = 250000; // 250ms
-        fd_max = m_nMaxFd;
-        memcpy(&read_set, &m_clients, sizeof(fd_set));
-        nResult = select(fd_max + 1, &read_set, NULL, NULL, &timeout);
+        
+        // check next fd
+        p++;
+      }
+      unlock();
     }
+    
+    timeout.tv_sec = secs;
+    timeout.tv_usec = usecs;
+    fd_max = m_nMaxFd;
+    memcpy(&read_set, &m_clients, sizeof(fd_set));
+    nResult = select(fd_max + 1, &read_set, NULL, NULL, &timeout);
+  }
+  
+  traceEnd(method);
 
-    //    cerr << "CPollClients::Thread BAILING!" << endl;
-}
+} // thread
+

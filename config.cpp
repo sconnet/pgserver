@@ -7,13 +7,16 @@
 //
 // Source File Name : config.cpp
 //
-// Version          : $Id: config.cpp,v 1.1 2001/04/21 02:51:43 sconnet Exp sconnet $
+// Version          : $Id: config.cpp,v 1.2 2001/04/21 06:23:15 sconnet Exp sconnet $
 //
 // File Overview    : Implementation of the config object
 //
 // Revision History : 
 //
 // $Log: config.cpp,v $
+// Revision 1.2  2001/04/21 06:23:15  sconnet
+// lock around container access
+//
 // Revision 1.1  2001/04/21 02:51:43  sconnet
 // Initial revision
 //
@@ -32,9 +35,42 @@
 
 extern string g_sConfigfile;
 
+
 //
 //-------------------------------------------------------------------------
-// Function       : bool CConfig::Read(const string& sFilename)
+// Function       : ostream& operator<<(const ostream& out,
+//                                      const CConfig& cfg)
+//
+// Implementation : dump the values in the map
+//
+// Author         : Steve Connet
+//
+//-------------------------------------------------------------------------
+//
+ostream& operator<<(ostream& out, const CConfig& cfg)
+{
+  string method("CConfig::operator<<");
+  traceBegin(method);
+
+  out << "[" << g_sConfigfile << "]" << '\n';
+  
+  CMap::const_iterator p;
+  cfg.lock();
+  for(p = cfg.m_map.begin(); p != cfg.m_map.end(); p++)
+    out << p->first << "=" << p->second << '\n';
+  cfg.unlock();
+  
+  out << endl;
+
+  traceEnd(method);
+  return out;
+
+} // operator<<
+
+
+//
+//-------------------------------------------------------------------------
+// Function       : bool CConfig::read(const string& sFilename)
 //
 // Implementation : Reads the config file and parses each line
 //
@@ -42,11 +78,15 @@ extern string g_sConfigfile;
 //
 //-------------------------------------------------------------------------
 //
-bool CConfig::Read(const string& sFilename)
+bool CConfig::read(const string& sFilename)
 {
+  string method("CConfig::read");
+  traceBegin(method);
+  
   string buf;
   m_map.clear();
   ifstream infile(sFilename.c_str(), ios::in);
+  bool ok = infile;
   while(getline(infile, buf)) {
     if(buf.length() && isalpha(buf[0])) {
       transform(buf.begin(), buf.end(), buf.begin(), toupper);
@@ -54,19 +94,21 @@ bool CConfig::Read(const string& sFilename)
       string name(buf.substr(0, pos));
       string value(buf.substr(pos + 1));
       lock();
-      m_map[name] = value;
+      m_map[trimLeft(trimRight(name))] = trimLeft(trimRight(value));
       unlock();
     }
   }
 
   infile.close();
-  return (infile != NULL);
+
+  traceEnd(method);
+  return ok;
   
-} // Read
+} // read
 
 //
 //-------------------------------------------------------------------------
-// Function       : string CConfig::GetValueAsStr(const char* sName,
+// Function       : string CConfig::getValueAsStr(const char* sName,
 //                                                const char* sDefault) 
 //
 //
@@ -77,10 +119,13 @@ bool CConfig::Read(const string& sFilename)
 //
 //-------------------------------------------------------------------------
 //
-string& CConfig::GetValueAsStr(const char* szName,
-                               const char* szDefault = NULL)
+string CConfig::getValueAsStr(const char* szName,
+                              const char* szDefault = "")
 {
-  static string sReturnVal(szDefault);
+  string method("CConfig::GetValueAsStr");
+  traceBegin(method);
+  
+  string sReturnVal(szDefault);
   string sName(szName);
   transform(sName.begin(), sName.end(), sName.begin(), toupper);
   
@@ -90,13 +135,15 @@ string& CConfig::GetValueAsStr(const char* szName,
   if(p != m_map.end())
     sReturnVal = p->second;
   unlock();  
+
+  traceEnd(method);
   return sReturnVal;
   
-} // GetValueAsString
+} // getValueAsString
 
 //
 //-------------------------------------------------------------------------
-// Function       : int CConfig::GetValueAsInt(const char* szName,
+// Function       : int CConfig::getValueAsInt(const char* szName,
 //                                             int nDefault)
 //
 // Implementation : Returns a value given a name. The value is converted
@@ -107,38 +154,17 @@ string& CConfig::GetValueAsStr(const char* szName,
 //
 //-------------------------------------------------------------------------
 //
-int CConfig::GetValueAsInt(const char* szName, int nDefault = 0)
+int CConfig::getValueAsInt(const char* szName, int nDefault = 0)
 {
+  string method("CConfig::getValueAsInt");
+  traceBegin(method);
+  
   int nRetVal = nDefault;
-  string& s = GetValueAsStr(szName, NULL);
+  string s(getValueAsStr(szName));
   if(s.length())
     nRetVal = atoi(s.c_str());
   
+  traceEnd(method);
   return nRetVal;
   
-} // GetValueAsInt
-
-//
-//-------------------------------------------------------------------------
-// Function       : void CConfig::Dump()
-//
-// Implementation : Dump the map of name-value pairs to stdout
-//                  Helpful in debugging.
-//
-// Author         : Steve Connet
-//
-//-------------------------------------------------------------------------
-//
-void CConfig::Dump()
-{
-  cout << "[" << g_sConfigfile << "]" << endl;
-  
-  CMap::iterator p;
-  lock();
-  for(p = m_map.begin(); p != m_map.end(); p++)
-    cout << p->first << "=" << p->second << '\n';
-  unlock();
-  
-  cout << endl;
-  
-} // Dump
+} // getValueAsInt

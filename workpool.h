@@ -7,14 +7,17 @@
 //
 // Source File Name : workpool.cpp
 //
-// Version          : $Id: $
+// Version          : $Id: workpool.h,v 1.1 2001/04/21 02:51:43 sconnet Exp sconnet $
 //
 // File Overview    : Manages all the work thread objects by using a queue
 //                    to keep track of them.
 //
 // Revision History : 
 //
-// $Log: $
+// $Log: workpool.h,v $
+// Revision 1.1  2001/04/21 02:51:43  sconnet
+// Initial revision
+//
 //
 //*****************************************************************************
 
@@ -28,19 +31,19 @@ typedef queue<CWork*> workQ;
 
 class CWorkPool
 {
-public:
-    CWorkPool();
-    virtual ~CWorkPool();
-
-    inline int Size() { return m_queue.size(); }
-
-    virtual void Start();
-    virtual void Stop();
-
-private:
-    workQ m_queue;
-    void Fire();
-    void Hire();
+ public:
+  CWorkPool() {}
+  virtual ~CWorkPool() {}
+  
+  inline int size() { return m_queue.size(); }
+  
+  virtual void start();
+  virtual void stop();
+  
+ private:
+  workQ m_queue;
+  void fire();
+  void hire(CWork* pWork);
 };
 
 #endif // __WORKPOOL_H_

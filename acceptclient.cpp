@@ -7,59 +7,34 @@
 //
 // Source File Name : acceptclient.h
 //
-// Version          : $Id: $
+// Version          : $Id: acceptclient.cpp,v 1.1 2001/04/21 02:51:43 sconnet Exp sconnet $
 //
 // File Overview    : Implementation of handling newly accepted clients
 //
 // Revision History : 
 //
-// $Log: $
+// $Log: acceptclient.cpp,v $
+// Revision 1.1  2001/04/21 02:51:43  sconnet
+// Initial revision
+//
 //
 //*****************************************************************************
 
 #include "pgserver.h"
 #include "acceptclient.h"
 #include "connectcount.h"
-#include "clientQ.h"
-#include "config.h"
+#include "safeQ.h"
+#include "client.h"
+#include "pgconfig.h"
 
 extern CConnectCount g_connectCount;
-extern CClientQ g_loginQ;
-extern CConfig g_cfg;
+extern CSafeQ<CClient> g_loginQ;
+extern CPGConfig g_cfg;
 
 
 //
 //-------------------------------------------------------------------------
-// Function       : CAcceptClient::CAcceptClient()
-//
-// Implementation : Constructor
-//
-// Author         : Steve Connet
-//
-//-------------------------------------------------------------------------
-//
-CAcceptClient::CAcceptClient()
-{
-}
-
-
-//
-//-------------------------------------------------------------------------
-// Function       : CAcceptClient::~CAcceptClient()
-//
-// Implementation : Destructor
-//
-// Author         : Steve Connet
-//
-//-------------------------------------------------------------------------
-//
-CAcceptClient::~CAcceptClient()
-{
-}
-
-//
-//-------------------------------------------------------------------------
-// Function       : void CAcceptClient::Start()
+// Function       : void CAcceptClient::start()
 //
 // Implementation : Initialize and start the listening thread
 //
@@ -67,21 +42,25 @@ CAcceptClient::~CAcceptClient()
 //
 //-------------------------------------------------------------------------
 //
-void CAcceptClient::Start()
+void CAcceptClient::start()
 {
-    // perform initialization here
-
-    // call base class
-    CListen::Start(g_cfg(CLIENTPORT_STR, CLIENTPORT), 
-                   g_cfg(ACCEPTCLIENT_THREAD_TIMEOUT_STR, 
-                         ACCEPTCLIENT_THREAD_TIMEOUT));
-
-} // Start
+  string method("CAcceptClient::start");
+  traceBegin(method);
+  
+  // perform initialization here
+  
+  // call base class
+  CListen::start(g_cfg.clientPort(),
+                 g_cfg.acceptClientThreadTimeout());
+  
+  traceEnd(method);
+  
+} // start
 
 
 //
 //-------------------------------------------------------------------------
-// Function       : void CAcceptClient::Stop()
+// Function       : void CAcceptClient::stop(bool waitForThreadJoin = true)
 //
 // Implementation : Clean up and stop the listening thread
 //
@@ -89,19 +68,24 @@ void CAcceptClient::Start()
 //
 //-------------------------------------------------------------------------
 //
-void CAcceptClient::Stop()
+void CAcceptClient::stop(bool waitForThreadJoin = true)
 {
-    // clean up here
+  string method("CAcceptClient::stop");
+  traceBegin(method);
+  
+  // clean up here
 
-    // call base class
-    CListen::Stop();
-
-} // Stop
+  // call base class
+  CListen::stop(waitForThreadJoin);
+  
+  traceEnd(method);
+  
+} // stop
 
 
 //
 //-------------------------------------------------------------------------
-// Function       : void CAcceptClient::OnAccept(CClient* pClient)
+// Function       : void CAcceptClient::onAccept(CClient* pClient)
 //
 // Implementation : Called by the base class when a new connection
 //                  has been accepted
@@ -113,17 +97,21 @@ void CAcceptClient::Stop()
 //
 //-------------------------------------------------------------------------
 //
-void CAcceptClient::OnAccept(CClient* pClient)
+void CAcceptClient::onAccept(const CClient& client)
 {
-    // increment connection count for this ip
-    if(g_connectCount += pClient->GetIpAddr())
-        g_loginQ << pClient;
-    else        
-    {
-        syslog(LOG_INFO, "%s has too many connections", pClient->GetIpAddr());
-
-        // fuck 'em, they be bad people
-        delete pClient;
-    }
-
-} // OnAccept
+  string method("CAcceptClient::onAccept");
+  traceBegin(method);
+  
+  // increment connection count for this ip
+  if(g_connectCount += client.getIpAddr())
+    g_loginQ << client;
+  else {
+    SYSLOG(LOG_INFO, "%s has too many connections", client.getIpAddr().c_str());
+    
+    // fuck 'em, they be bad people
+    client.disconnect();
+  }
+  
+  traceEnd(method);
+  
+} // onAccept

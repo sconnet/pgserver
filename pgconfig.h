@@ -7,13 +7,16 @@
 //
 // Source File Name : pgconfig.h
 //
-// Version          : $Id: pgconfig.h,v 1.1 2001/04/21 06:12:52 sconnet Exp sconnet $
+// Version          : $Id: pgconfig.h,v 1.2 2001/04/21 06:27:39 sconnet Exp sconnet $
 //
 // File Overview    : Stores all configuration items
 //
 // Revision History : 
 //
 // $Log: pgconfig.h,v $
+// Revision 1.2  2001/04/21 06:27:39  sconnet
+// developmental changes
+//
 // Revision 1.1  2001/04/21 06:12:52  sconnet
 // Initial revision
 //
@@ -30,52 +33,47 @@ class CPGConfig : public CConfig
 {
  public:
   CPGConfig() :
-    nStatsPort_(32902),
-    nAcceptStatsThreadTimeout_(1000),
-    nClientPort_(32903),
-    nAcceptClientThreadTimeout_(1000),
-    nMaxConnectionsPerIP_(5),
-    nWorkPoolSize_(10),
-    nWorkIdleTime_(1000),
-    bLogClientName_(false)
+    m_nStatsPort(32902),
+    m_nAcceptStatsThreadTimeout(1000),
+    m_nClientPort(32903),
+    m_nAcceptClientThreadTimeout(1000),
+    m_nMaxConnectionsPerIP(5),
+    m_nLoginQThreads(5),
+    m_nCommQThreads(10),
+    m_nWorkIdleTime(1000),
+    m_nTriggerTimeout(1000),
+    m_bLogClientName(false)
     {}
   ~CPGConfig() {}
+
+  friend ostream& operator<<(ostream& out, const CPGConfig& cfg);
+
+  inline int statsPort() const { return m_nStatsPort; }
+  inline int acceptStatsThreadTimeout() const
+    { return m_nAcceptStatsThreadTimeout; }
+  inline int clientPort() const { return m_nClientPort; }
+  inline int acceptClientThreadTimeout() const
+    { return m_nAcceptClientThreadTimeout; }
+  inline int maxConnectionsPerIP() const { return m_nMaxConnectionsPerIP; }
+  inline int loginQThreads() const { return m_nLoginQThreads; }
+  inline int commQThreads() const { return m_nCommQThreads; }
+  inline int workIdleTime() const { return m_nWorkIdleTime; }
+  inline int triggerTimeout() const { return m_nTriggerTimeout; }
+  inline bool logClientName() const { return m_bLogClientName; }
   
-  bool Read(const string& sFilename)
-    {
-      bool ok = CConfig::Read(sFilename);
-      if(ok) {
-        nStatsPort_ = GetValueAsInt("StatsPort", nStatsPort_);
-        nAcceptStatsThreadTimeout_ = GetValueAsInt("AcceptStatsThreadTimeout",
-                                                  nAcceptStatsThreadTimeout_);
-        nClientPort_ = GetValueAsInt("ClientPort", nClientPort_);
-        nAcceptClientThreadTimeout_ = GetValueAsInt("acceptclientthreadtimeout",
-                                                   nAcceptClientThreadTimeout_);
-        nMaxConnectionsPerIP_ = GetValueAsInt("MaxConnectionsPerIP", nMaxConnectionsPerIP_);
-        nWorkPoolSize_ = GetValueAsInt("WorkPoolSize", nWorkPoolSize_);
-        nWorkIdleTime_ = GetValueAsInt("WorkIdleTime", nWorkIdleTime_);
-        bLogClientName_ = GetValueAsStr("LogClientName", "NO") == "YES";
-      }
-      return ok;
-    }
-
-  inline int AcceptStatsThreadTimeout() { return nAcceptStatsThreadTimeout_; }
-  inline int ClientPort() { return nClientPort_; }
-  inline int AcceptClientThreadTimeout() { return nAcceptClientThreadTimeout_; }
-  inline int MaxConnectionsPerIP() { return nMaxConnectionsPerIP_; }
-  inline int WorkPoolSize() { return nWorkPoolSize_; }
-  inline int WorkIdleTime() { return nWorkIdleTime_; }
-  inline bool LogClientName() { return bLogClientName_; }
-
+  bool read(const string& sFilename);
+  
  private:
-  int nStatsPort_;
-  int nAcceptStatsThreadTimeout_;
-  int nClientPort_;
-  int nAcceptClientThreadTimeout_;
-  int nMaxConnectionsPerIP_;
-  int nWorkPoolSize_;
-  int nWorkIdleTime_;
-  bool bLogClientName_;
+  int m_nStatsPort;
+  int m_nAcceptStatsThreadTimeout;
+  int m_nClientPort;
+  int m_nAcceptClientThreadTimeout;
+  int m_nMaxConnectionsPerIP;
+  int m_nLoginQThreads;
+  int m_nCommQThreads;
+  int m_nWorkIdleTime;
+  int m_nTriggerTimeout;
+  bool m_bLogClientName;
 };
 
 #endif // __PGCONFIG_H_

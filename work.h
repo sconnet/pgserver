@@ -5,9 +5,9 @@
 // Programmer       : Steve Connet
 //                    Feb. 10, 2001
 //
-// Source File Name : work.cpp
+// Source File Name : work.h
 //
-// Version          : $Id: $
+// Version          : $Id: work.h,v 1.1 2001/04/21 02:51:43 sconnet Exp sconnet $
 //
 // File Overview    : Multiple work thread objects are spawned by
 //                    the WorkPool object. The purpose of the
@@ -17,7 +17,10 @@
 //
 // Revision History : 
 //
-// $Log: $
+// $Log: work.h,v $
+// Revision 1.1  2001/04/21 02:51:43  sconnet
+// Initial revision
+//
 //
 //*****************************************************************************
 
@@ -28,15 +31,16 @@
 
 class CWork : public CThread
 {
-public:
-    CWork();
-    virtual ~CWork();
+ public:
+  CWork() {}
+  virtual ~CWork() {}
+  
+  void start();
+  void stop(bool waitForThreadJoin = true);
 
-    virtual void Start();
-    virtual void Stop();
-
-private:
-    virtual void Thread();
+ private:
+  virtual void ProcessQueue() = 0;  
+  void thread();
 };
 
 #endif // __WORK_H_

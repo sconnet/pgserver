@@ -7,13 +7,16 @@
 //
 // Source File Name : client.cpp
 //
-// Version          : $Id: $
+// Version          : $Id: client.cpp,v 1.1 2001/04/21 02:51:43 sconnet Exp sconnet $
 //
 // File Overview    : Implementation of the client connection
 //
 // Revision History : 
 //
-// $Log: $
+// $Log: client.cpp,v $
+// Revision 1.1  2001/04/21 02:51:43  sconnet
+// Initial revision
+//
 //
 //*****************************************************************************
 
@@ -24,6 +27,30 @@
 #include <sys/socket.h>
 #include <string.h>
 #include <stdlib.h>
+
+//
+//-------------------------------------------------------------------------
+// Function       :  ostream& operator<<(ostream& output,
+//                                       const CClient& client);
+//
+// Implementation : write data members to output stream
+//
+// Author         : Steve Connet
+//
+//-------------------------------------------------------------------------
+//
+ostream& operator<<(ostream& output, const CClient& client)
+{
+  string fn("CClient operator<<");
+  traceBegin(fn);
+  
+  output << client.m_sIpAddr << " (" << client.m_sHostname << ") ";
+  output << client.m_nPort;
+    
+  traceEnd(fn);
+  return output;
+  
+} // operator<<
 
 //
 //-------------------------------------------------------------------------
@@ -40,17 +67,16 @@ CClient::CClient() :
   m_nPort(-1),
   m_bGracefulShutdown(true)
 {
-    strcpy(m_sIpAddr, "");
-    strcpy(m_sHostname, "");
-
-    pthread_mutex_init(&m_lock, NULL);
+  string method("CClient::CClient (default)");
+  traceBegin(method);
+  traceEnd(method);
 }
 
 //
 //-------------------------------------------------------------------------
 // Function       : CClient::CClient(int fd, int port, 
-//                                           char* sIpAddr, 
-//                                           char* sHostname = NULL)
+//                                   const char* sIpAddr, 
+//                                   const char* sHostname = NULL)
 //
 // Implementation : default constructor
 //
@@ -58,18 +84,24 @@ CClient::CClient() :
 //
 //-------------------------------------------------------------------------
 //
-CClient::CClient(int fd, int nPort, char* sIpAddr, char* sHostname = NULL) :
+CClient::CClient(int fd, int nPort, const char* sIpAddr,
+                 const char* sHostname = NULL) :
   m_fd(fd),
   m_nPort(nPort),
-  m_bGracefulShutdown(true)
+  m_bGracefulShutdown(true),
+  m_sHostname(sHostname),
+  m_sIpAddr(sIpAddr)
 {
-    strcpy(m_sIpAddr, sIpAddr);
-    strcpy(m_sHostname, sHostname != NULL ? sHostname : "");
+  string method("CClient::CClient");
+  traceBegin(method);
+  
+  // tell the world we have a new connection
+  
+  cout << "Connect " << m_sIpAddr << ":" << m_nPort << " " << m_sHostname;
+  cout << endl;
+  //  syslog(LOG_INFO, "Connect %s:%u %s", m_sIpAddr, m_nPort, m_sHostname);
 
-    pthread_mutex_init(&m_lock, NULL);
-
-    // tell the world we have a new connection
-    //    syslog(LOG_INFO, "Connect %s:%u %s", m_sIpAddr, m_nPort, m_sHostname);
+  traceEnd(method);
 }
 
 
@@ -85,48 +117,44 @@ CClient::CClient(int fd, int nPort, char* sIpAddr, char* sHostname = NULL) :
 //
 CClient::~CClient()
 {
-    // tell the world we are dumping this stooge
-  //    syslog(LOG_INFO, "Closing %s:%u %s", m_sIpAddr, m_nPort, m_sHostname);
-
-    if(m_bGracefulShutdown)
-    {
-        SendMessage(MSG_DISCONNECT);
-        shutdown(m_fd, SHUT_RDWR);
-    }
-
-    close(m_fd);
-    pthread_mutex_destroy(&m_lock);
+  string method("CClient::~CClient");
+  traceBegin(method);
+  traceEnd(method);
 }
 
 
 //
 //-------------------------------------------------------------------------
-// Function       : void CClient::Init(int fd, int port, char* sIpAddr, 
-//                                     char* sHostname = NULL)
+// Function       : void CClient::disconnect() const
 //
-// Implementation : Init if default constructor is used
+// Implementation : disconnect this client
 //
 // Author         : Steve Connet
 //
 //-------------------------------------------------------------------------
 //
-void CClient::Init(int fd, int nPort, char* sIpAddr, char* sHostname = NULL)
+void CClient::disconnect() const
 {
-    // prevent someone from changing info from an already connected client
-    if(m_fd == -1)
-    {
-        m_fd = fd;
-        m_nPort = nPort;
-        strcpy(m_sIpAddr, sIpAddr);
-        strcpy(m_sHostname, sHostname != NULL ? sHostname : "");
-    }
+  string method("CClient::disconnect");
+  traceBegin(method);
 
-} // Init
+  // tell the world we are dumping this stooge
+  syslog(LOG_INFO, "Closing %s:%u %s", m_sIpAddr.c_str(), m_nPort,
+         m_sHostname.c_str());
+  if(m_bGracefulShutdown) {
+    sendMessage(MSG_DISCONNECT);
+    shutdown(m_fd, SHUT_RDWR);
+  }
+
+  close(m_fd);
+  traceEnd(method);
+
+} // disconnect
 
 
 //
 //-------------------------------------------------------------------------
-// Function       : int CClient::SendMessage(int nMsg)
+// Function       : int CClient::sendMessage(int nMsg) const
 //
 // Implementation : Send message to client
 //
@@ -134,26 +162,44 @@ void CClient::Init(int fd, int nPort, char* sIpAddr, char* sHostname = NULL)
 //
 //-------------------------------------------------------------------------
 //
-int CClient::SendMessage(int nMsg)
+int CClient::sendMessage(int nMsg) const
 {
-    pthread_mutex_lock(&m_lock);
-    int nResult = Write(m_fd, &nMsg, sizeof(nMsg));
-    pthread_mutex_unlock(&m_lock);
+  string method("CClient::sendMessage");
+  traceBegin(method);
+  
+  lock();
+  int nResult = Write(m_fd, &nMsg, sizeof(nMsg));
+  unlock();
+  
+  traceEnd(method);
+  return nResult;
 
-    return nResult;
+} // sendMessage
 
-} // SendMessage
 
-int CClient::ReadMessage(int &nMsg)
+
+//
+//-------------------------------------------------------------------------
+// Function       : int CClient::readMessage(int &nMsg) const
+//
+// Implementation : Read message from client
+//
+// Author         : Steve Connet
+//
+//-------------------------------------------------------------------------
+//
+int CClient::readMessage(int &nMsg) const
 {
-    char sTemp[256] = { 0 };
-    pthread_mutex_lock(&m_lock);
-//    int nResult = Read(m_fd, &nMsg, sizeof(nMsg));
-    //    cerr << "CClient::ReadMessage <--" << endl;
-    int nResult = Read(m_fd, sTemp, sizeof(nMsg));
-    //    cerr << "CClient::ReadMessage -->" << endl;
-    pthread_mutex_unlock(&m_lock);
-    nMsg = atoi(sTemp);
-    return nResult;
-
-} // ReadMessage
+  string method("CClient::readMessage");
+  traceBegin(method);
+  
+  char sTemp[256] = { 0 };
+  lock();
+  int nResult = Read(m_fd, sTemp, sizeof(nMsg));
+  unlock();
+  nMsg = atoi(sTemp);
+  
+  traceEnd(method);
+  return nResult;
+  
+} // readMessage
