@@ -7,7 +7,7 @@
 //
 // Source File Name : config.h
 //
-// Version          : $Id: config.h,v 1.1 2001/04/21 02:50:32 sconnet Exp sconnet $
+// Version          : $Id: config.h,v 1.2 2001/04/21 06:19:51 sconnet Exp sconnet $
 //
 // File Overview    : Reads in the configuration file once and puts
 //                    each name value pair into a map for quick
@@ -16,6 +16,9 @@
 // Revision History : 
 //
 // $Log: config.h,v $
+// Revision 1.2  2001/04/21 06:19:51  sconnet
+// developmental changes
+//
 // Revision 1.1  2001/04/21 02:50:32  sconnet
 // Initial revision
 //
@@ -28,9 +31,11 @@
 #include <map>
 #include <string>
 
+#include "lock.h"
+
 typedef map<string, string> CMap;
 
-class CConfig
+class CConfig : private CLock
 {
  public:
   CConfig() {}
