@@ -7,13 +7,16 @@
 //
 // Source File Name : config.cpp
 //
-// Version          : $Id: $
+// Version          : $Id: config.cpp,v 1.1 2001/04/21 02:51:43 sconnet Exp sconnet $
 //
 // File Overview    : Implementation of the config object
 //
 // Revision History : 
 //
-// $Log: $
+// $Log: config.cpp,v $
+// Revision 1.1  2001/04/21 02:51:43  sconnet
+// Initial revision
+//
 //
 //*****************************************************************************
 
@@ -24,44 +27,14 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#include <fstream>
 #include <algorithm>
 
-extern char* g_sConfigfile;
+extern string g_sConfigfile;
 
 //
 //-------------------------------------------------------------------------
-// Function       : CConfig::CConfig()
-//
-// Implementation : Constructor
-//
-// Author         : Steve Connet
-//
-//-------------------------------------------------------------------------
-//
-CConfig::CConfig()
-{
-   pthread_mutex_init(&m_lock, NULL);
-}
-
-//
-//-------------------------------------------------------------------------
-// Function       : CConfig::~CConfig()
-//
-// Implementation : Destructor
-//
-// Author         : Steve Connet
-//
-//-------------------------------------------------------------------------
-//
-CConfig::~CConfig()
-{
-    pthread_mutex_destroy(&m_lock);
-    m_map.clear();
-}
-
-//
-//-------------------------------------------------------------------------
-// Function       : bool CConfig::Read(const char* szFilename)
+// Function       : bool CConfig::Read(const string& sFilename)
 //
 // Implementation : Reads the config file and parses each line
 //
@@ -69,89 +42,33 @@ CConfig::~CConfig()
 //
 //-------------------------------------------------------------------------
 //
-bool CConfig::Read(const char* szFilename)
+bool CConfig::Read(const string& sFilename)
 {
-    FILE* f = fopen(szFilename, "r");
-    if(f != NULL)
-    {
-        char s[82];
-
-        // Read in a string a parse it
-        fgets(s, 80, f);
-        ParseString(s);
-
-        // Keep doing it until we reach the end of file
-        while(!feof(f))
-        {
-            fgets(s, 80, f);
-            ParseString(s);
-        }
-
-        fclose(f);
+  string buf;
+  m_map.clear();
+  ifstream infile(sFilename.c_str(), ios::in);
+  while(getline(infile, buf)) {
+    if(buf.length() && isalpha(buf[0])) {
+      transform(buf.begin(), buf.end(), buf.begin(), toupper);
+      string::size_type pos = buf.find_first_of('=');
+      string name(buf.substr(0, pos));
+      string value(buf.substr(pos + 1));
+      lock();
+      m_map[name] = value;
+      unlock();
     }
-    
-    return (f != NULL);
+  }
 
+  infile.close();
+  return (infile != NULL);
+  
 } // Read
 
 //
 //-------------------------------------------------------------------------
-// Function       : void CConfig::ParseString(char* s)
+// Function       : string CConfig::GetValueAsStr(const char* sName,
+//                                                const char* sDefault) 
 //
-// Implementation : Parses the passed string and putting the
-//                  name value pair into a map for later retrieval.
-//                  Converts everything to upper case.
-//
-// Author         : Steve Connet
-//
-//-------------------------------------------------------------------------
-//
-void CConfig::ParseString(char* s)
-{
-    char* pEq = NULL;
-    
-    // Parse message if it isn't a comment and it contains a name-value pair
-    if((s[0] != '#') && ((pEq = strchr(s, '=')) != NULL) && strlen(s) > 1)
-    {
-        // temp so we can trim and convert to upper
-        char szName[41];
-        char szValue[41];
-        
-        string sName;
-        string sValue;
-
-        // axe the additonal cr/lf
-        s[strlen(s) - 1] = '\0';      // just a cr for linux
-        //        s[strlen(s) - 2] = '\0';
-
-        // copy name/value into newly allocated memory
-        strcpy(szValue, pEq + 1);
-        *pEq = '\0';
-        strcpy(szName, s);
-
-        // trim whitespace
-        strcpy(szName, trim_right(szName));
-        strcpy(szValue, trim_left(szValue));
-
-        // append to strings
-        sName.append(szName);
-        sValue.append(szValue);
-
-        // convert to upper case
-        transform(sName.begin(), sName.end(), sName.begin(), toupper);
-        transform(sValue.begin(), sValue.end(), sValue.begin(), toupper);
-        
-        // insert copies into the map
-        //m_map.insert(pair<string, string>(sName, sValue));
-        m_map[sName] = sValue; // this is the same thing but easier to read
-    }
-
-} // ParseString
-
-//
-//-------------------------------------------------------------------------
-// Function       : char* CConfig::GetValueAsString(char* szName, 
-//                                                  char* szDefault)
 //
 // Implementation : Returns a value given a name. If name is not
 //                  found then default is returned.
@@ -160,31 +77,27 @@ void CConfig::ParseString(char* s)
 //
 //-------------------------------------------------------------------------
 //
-char* CConfig::GetValueAsString(char* szName, char* szDefault)
+string& CConfig::GetValueAsStr(const char* szName,
+                               const char* szDefault = NULL)
 {
-    char* sReturnVal = szDefault;
-    pthread_mutex_lock(&m_lock);
-    
-    // convert to upper case    
-    string sName  = szName;
-    transform(sName.begin(), sName.end(), sName.begin(), toupper);
-
-    // find it in the map
-    CMap::iterator p;
-    p = m_map.find(sName);
-    pthread_mutex_unlock(&m_lock);
-
-    // point to it if we found it
-    if(p != m_map.end())
-        sReturnVal = (char*)p->second.c_str();
-
-    return sReturnVal;
-
+  static string sReturnVal(szDefault);
+  string sName(szName);
+  transform(sName.begin(), sName.end(), sName.begin(), toupper);
+  
+  // find it in the map
+  lock();
+  CMap::iterator p = m_map.find(sName);
+  if(p != m_map.end())
+    sReturnVal = p->second;
+  unlock();  
+  return sReturnVal;
+  
 } // GetValueAsString
 
 //
 //-------------------------------------------------------------------------
-// Function       : int CConfig::GetValueAsInt(char* szName, int nDefault)
+// Function       : int CConfig::GetValueAsInt(const char* szName,
+//                                             int nDefault)
 //
 // Implementation : Returns a value given a name. The value is converted
 //                  to an int. If the name is not found, the default
@@ -194,15 +107,15 @@ char* CConfig::GetValueAsString(char* szName, char* szDefault)
 //
 //-------------------------------------------------------------------------
 //
-int CConfig::GetValueAsInt(char* szName, int nDefault)
+int CConfig::GetValueAsInt(const char* szName, int nDefault = 0)
 {
-    int nRetVal = nDefault;
-    char* p = GetValueAsString(szName, NULL);
-    if(p)
-        nRetVal = atoi(p);
-
-    return nRetVal;
-
+  int nRetVal = nDefault;
+  string& s = GetValueAsStr(szName, NULL);
+  if(s.length())
+    nRetVal = atoi(s.c_str());
+  
+  return nRetVal;
+  
 } // GetValueAsInt
 
 //
@@ -218,12 +131,14 @@ int CConfig::GetValueAsInt(char* szName, int nDefault)
 //
 void CConfig::Dump()
 {
-    cout << "[" << g_sConfigfile << "]" << endl;
-
-    CMap::iterator p;
-    for(p = m_map.begin(); p != m_map.end(); p++)
-        cout << p->first << "=" << p->second << endl;
-    
-    cout << endl;
-
+  cout << "[" << g_sConfigfile << "]" << endl;
+  
+  CMap::iterator p;
+  lock();
+  for(p = m_map.begin(); p != m_map.end(); p++)
+    cout << p->first << "=" << p->second << '\n';
+  unlock();
+  
+  cout << endl;
+  
 } // Dump
