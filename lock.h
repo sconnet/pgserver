@@ -7,16 +7,22 @@
 //
 // Source File Name : lock.h
 //
-// Version          : $Id: $
+// Version          : $Id: lock.h,v 1.1 2001/04/21 04:30:24 sconnet Exp sconnet $
 //
 // File Overview    : Base class for locking mechanism
 //
 // Revision History : 
 //
-// $Log: $
+// $Log: lock.h,v $
+// Revision 1.1  2001/04/21 04:30:24  sconnet
+// Initial revision
+//
 //
 //
 //*****************************************************************************
+
+#ifndef __LOCK_H_
+#define __LOCK_H_
 
 #include <pthread.h>
 
@@ -33,3 +39,5 @@ class CLock
  private:
   pthread_mutex_t lock_;
 };
+
+#endif // __LOCK_H_
