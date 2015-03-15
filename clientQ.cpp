@@ -7,13 +7,16 @@
 //
 // Source File Name : clientQ.cpp
 //
-// Version          : $Id: clientQ.cpp,v 1.1 2001/04/21 02:51:43 sconnet Exp sconnet $
+// Version          : $Id: clientQ.cpp,v 1.2 2001/04/22 18:09:48 sconnet Exp $
 //
 // File Overview    : Queue of clients waiting to be logged in
 //
 // Revision History : 
 //
 // $Log: clientQ.cpp,v $
+// Revision 1.2  2001/04/22 18:09:48  sconnet
+// trying safeQ instead
+//
 // Revision 1.1  2001/04/21 02:51:43  sconnet
 // Initial revision
 //

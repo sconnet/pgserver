@@ -7,13 +7,16 @@
 //
 // Source File Name : clientQ.h
 //
-// Version          : $Id: clientQ.h,v 1.1 2001/04/21 02:51:43 sconnet Exp sconnet $
+// Version          : $Id: clientQ.h,v 1.2 2001/04/22 18:10:08 sconnet Exp $
 //
 // File Overview    : Queue of clients
 //
 // Revision History : 
 //
 // $Log: clientQ.h,v $
+// Revision 1.2  2001/04/22 18:10:08  sconnet
+// trying safeQ instead
+//
 // Revision 1.1  2001/04/21 02:51:43  sconnet
 // Initial revision
 //

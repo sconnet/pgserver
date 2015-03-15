@@ -7,13 +7,16 @@
 #
 # Source File Name : makefile
 #
-# Version          : $Id: makefile,v 1.2 2001/04/21 06:15:31 sconnet Exp sconnet $
+# Version          : $Id: make.default,v 1.2 2001/04/23 01:07:30 sconnet Exp $
 #
 # File Overview    : Makefile to make the Pear Gear server
 #
 # Revision History : 
 #
-# $Log: makefile,v $
+# $Log: make.default,v $
+# Revision 1.2  2001/04/23 01:07:30  sconnet
+# continued development
+#
 # Revision 1.2  2001/04/21 06:15:31  sconnet
 # performed a make depends
 #

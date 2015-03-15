@@ -7,13 +7,16 @@
 //
 // Source File Name : connectcount.cpp
 //
-// Version          : $Id: connectcount.cpp,v 1.1 2001/04/21 02:51:43 sconnet Exp sconnet $
+// Version          : $Id: connectcount.cpp,v 1.2 2001/04/23 01:05:46 sconnet Exp $
 //
 // File Overview    : Implementation of the connect count class
 //
 // Revision History : 
 //
 // $Log: connectcount.cpp,v $
+// Revision 1.2  2001/04/23 01:05:46  sconnet
+// continued development
+//
 // Revision 1.1  2001/04/21 02:51:43  sconnet
 // Initial revision
 //

@@ -7,13 +7,16 @@
 //
 // Source File Name : pollclients.h
 //
-// Version          : $Id: $
+// Version          : $Id: pollclients.h,v 1.2 2001/04/23 01:05:46 sconnet Exp $
 //
 // File Overview    : 
 //
 // Revision History : 
 //
-// $Log: $
+// $Log: pollclients.h,v $
+// Revision 1.2  2001/04/23 01:05:46  sconnet
+// continued development
+//
 //
 //
 //*****************************************************************************

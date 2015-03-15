@@ -7,7 +7,7 @@
 //
 // Source File Name : thread.h
 //
-// Version          : $Id: thread.h,v 1.1 2001/04/21 02:51:43 sconnet Exp sconnet $
+// Version          : $Id: thread.h,v 1.2 2001/04/23 01:05:46 sconnet Exp $
 //
 // File Overview    : Abstract class that gives derived classes threaded
 //                    functionality. Derived classes MUST override the
@@ -16,6 +16,9 @@
 // Revision History : 
 //
 // $Log: thread.h,v $
+// Revision 1.2  2001/04/23 01:05:46  sconnet
+// continued development
+//
 // Revision 1.1  2001/04/21 02:51:43  sconnet
 // Initial revision
 //

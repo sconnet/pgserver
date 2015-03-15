@@ -1,10 +1,13 @@
 /*
- -------------------------------------------------------------- 
-  $Id: $
+ -----------------------------------------------------------------------------
+  $Id: connect_test.c,v 1.1 2001/04/23 03:28:42 sconnet Exp sconnet $
   
-  $Log: $
+  $Log: connect_test.c,v $
+  Revision 1.1  2001/04/23 03:28:42  sconnet
+  Initial revision
 
- -------------------------------------------------------------- 
+ -----------------------------------------------------------------------------
+ 
 compile with:
   cc -Wall -O2 -o ctest connect_test.c
   
@@ -65,8 +68,8 @@ int processargs(int argc, char* argv[], char* addr, int len, int* port, int* cou
 #define ADDRLEN 16
 int main(int argc, char* argv[])
 {
-  /*  char* msg = "34"; */ /* arbitrary message */
-  int msg = 2;
+  char* msg = "2";  /* arbitrary message */
+  /* int msg = 2; */
   char addr[ADDRLEN] = { 0 };
   int* connections = NULL;
   int port = -1;
@@ -107,7 +110,8 @@ int main(int argc, char* argv[])
     }
 
     /* write a msg */
-    write(fd, (char*)&msg, sizeof(msg));
+    /* write(fd, (char*)&msg, sizeof(msg)); */
+    write(fd, msg, strlen(msg));
 
     /* store connection */
     connections[index] = fd;

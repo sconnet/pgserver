@@ -7,13 +7,16 @@
 //
 // Source File Name : workloginQ.cpp
 //
-// Version          : $Id: $
+// Version          : $Id: workloginQ.cpp,v 1.1 2001/04/23 01:05:46 sconnet Exp sconnet $
 //
 // File Overview    : Process clients on the login queue
 //
 // Revision History : 
 //
-// $Log: $
+// $Log: workloginQ.cpp,v $
+// Revision 1.1  2001/04/23 01:05:46  sconnet
+// Initial revision
+//
 //
 //
 //*****************************************************************************
@@ -29,18 +32,26 @@ extern CSafeQ<CClient> g_loginQ;
 extern CPollClients g_pollClients;
 extern CPGConfig g_cfg;
 
-void CWorkLoginQ::ProcessQueue()
+//
+//-------------------------------------------------------------------------
+// Function       : void CWorkLoginQ::ProcessQueue(CClient& client) const
+//
+// Implementation : Check and process the login queue
+//
+// Author         : Steve Connet
+//
+//-------------------------------------------------------------------------
+//
+void CWorkLoginQ::ProcessQueue(CClient& client) const
 {
   string method("CWorkLoginQ::ProcessQueue");
   traceBegin(method);
   
-  CClient client;
   if(g_loginQ >> client) {
 
     // login client
 
     // put on pollClients
-    DEBUG(method, "\t\tg_pollClients << client\n");
     g_pollClients << client;
   }
 

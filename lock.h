@@ -7,13 +7,16 @@
 //
 // Source File Name : lock.h
 //
-// Version          : $Id: lock.h,v 1.2 2001/04/21 06:11:38 sconnet Exp sconnet $
+// Version          : $Id: lock.h,v 1.3 2001/04/23 01:05:46 sconnet Exp $
 //
 // File Overview    : Base class for locking mechanism
 //
 // Revision History : 
 //
 // $Log: lock.h,v $
+// Revision 1.3  2001/04/23 01:05:46  sconnet
+// continued development
+//
 // Revision 1.2  2001/04/21 06:11:38  sconnet
 // added gaurds
 //

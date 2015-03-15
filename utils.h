@@ -7,7 +7,7 @@
 //
 // Source File Name : utils.h
 //
-// Version          : $Id: utils.h,v 1.1 2001/04/21 02:51:43 sconnet Exp sconnet $
+// Version          : $Id: utils.h,v 1.2 2001/04/23 01:05:46 sconnet Exp $
 //
 // File Overview    : Some utility functions I needed to do various
 //                    string manipulations and read/write all data
@@ -17,6 +17,9 @@
 // Revision History : 
 //
 // $Log: utils.h,v $
+// Revision 1.2  2001/04/23 01:05:46  sconnet
+// continued development
+//
 // Revision 1.1  2001/04/21 02:51:43  sconnet
 // Initial revision
 //

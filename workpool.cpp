@@ -7,13 +7,16 @@
 //
 // Source File Name : workpool.cpp
 //
-// Version          : $Id: workpool.cpp,v 1.1 2001/04/21 02:51:43 sconnet Exp sconnet $
+// Version          : $Id: workpool.cpp,v 1.2 2001/04/23 01:05:46 sconnet Exp $
 //
 // File Overview    : Implementation of the work pool
 //
 // Revision History : 
 //
 // $Log: workpool.cpp,v $
+// Revision 1.2  2001/04/23 01:05:46  sconnet
+// continued development
+//
 // Revision 1.1  2001/04/21 02:51:43  sconnet
 // Initial revision
 //

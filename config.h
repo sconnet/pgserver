@@ -7,7 +7,7 @@
 //
 // Source File Name : config.h
 //
-// Version          : $Id: config.h,v 1.3 2001/04/21 06:22:56 sconnet Exp sconnet $
+// Version          : $Id: config.h,v 1.4 2001/04/23 01:05:46 sconnet Exp $
 //
 // File Overview    : Reads in the configuration file once and puts
 //                    each name value pair into a map for quick
@@ -16,6 +16,9 @@
 // Revision History : 
 //
 // $Log: config.h,v $
+// Revision 1.4  2001/04/23 01:05:46  sconnet
+// continued development
+//
 // Revision 1.3  2001/04/21 06:22:56  sconnet
 // derived from lock
 //

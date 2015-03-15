@@ -7,13 +7,16 @@
 //
 // Source File Name : workcommQ.cpp
 //
-// Version          : $Id: $
+// Version          : $Id: workcommQ.cpp,v 1.1 2001/04/23 01:05:46 sconnet Exp sconnet $
 //
 // File Overview    : Process clients on the comm queue
 //
 // Revision History : 
 //
-// $Log: $
+// $Log: workcommQ.cpp,v $
+// Revision 1.1  2001/04/23 01:05:46  sconnet
+// Initial revision
+//
 //
 //
 //*****************************************************************************
@@ -29,43 +32,63 @@ extern CSafeQ<CClient> g_commQ;
 extern CPollClients g_pollClients;
 extern CPGConfig g_cfg;
 
-void CWorkCommQ::ProcessQueue()
+//
+//-------------------------------------------------------------------------
+// Function       : void CWorkCommQ::ProcessQueue(CClient& client) const
+//
+// Implementation : Check and process the comm queue
+//
+// Author         : Steve Connet
+//
+//-------------------------------------------------------------------------
+//
+void CWorkCommQ::ProcessQueue(CClient& client) const
 {
   string method("CWorkCommQ::ProcessQueue");
   traceBegin(method);
   
-  CClient client;
   if(g_commQ >> client) {
-    DEBUG(method, "Msg from client <--");
-    int nMsg = 0;
+    int nMsg = -1;
     int nRes;
-      
-    // TODO: this line looks too complicated, simplify it
+    bool bGibberish = false;
+    
     if((nRes = (client >> nMsg)) > 0) {
-
-      DEBUG(method, "Msg from client --> %d\n", nMsg);
+      DEBUG(method, "client msg: %d\n", nMsg);
+      
       // search, identify, chat, disconnect, etc.
+      
       switch(nMsg) {
       case MSG_DISCONNECT:
+        cout << "MSG_DISCONNECT" << endl;
         break;
       case MSG_SEARCHRESULT:
+        cout << "MSG_SEARCHRESULT" << endl;
         break;
       case MSG_USERID:
+        cout << "MSG_USERID" << endl;
+        break;
+      default:
+        SYSLOG(LOG_WARNING, "Client sending gibberish=%d %s:%d, disconnecting", 
+               nMsg, client.getIpAddr().c_str(), client.getPort());      
+        disconnect(client);
+        bGibberish = true;
         break;
       }
       
-      // insert client back in pollClients
-      g_pollClients << client;
+      // insert client back in pollClients if they seem to make sense
+      if(!bGibberish)
+        g_pollClients << client;
     }
-    else {
-
-      // disconnect client
+    else if(nRes == 0) {
+      SYSLOG(LOG_INFO, "Client disconnected %s:%d", 
+             client.getIpAddr().c_str(), client.getPort());      
+      disconnect(client);
+    }
+    else {      
       SYSLOG(LOG_WARNING, "Error reading client %s:%d, disconnecting", 
-             client.getIpAddr().c_str(), client.getPort());
-      
-      g_pollClients.erase(client);
-      client.disconnect();
-    }                
+             client.getIpAddr().c_str(), client.getPort());      
+      disconnect(client);
+    }
   }
   
   traceEnd(method);

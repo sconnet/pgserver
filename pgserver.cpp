@@ -7,13 +7,16 @@
 //
 // Source File Name : pgserver.cpp
 //
-// Version          : $Id: pgserver.cpp,v 1.1 2001/04/21 02:51:43 sconnet Exp sconnet $
+// Version          : $Id: pgserver.cpp,v 1.2 2001/04/23 01:05:46 sconnet Exp sconnet $
 //
 // File Overview    : main launch point of the Peer Gear server
 //
 // Revision History : 
 //
 // $Log: pgserver.cpp,v $
+// Revision 1.2  2001/04/23 01:05:46  sconnet
+// continued development
+//
 // Revision 1.1  2001/04/21 02:51:43  sconnet
 // Initial revision
 //
@@ -39,8 +42,8 @@ string g_sConfigfile("/etc/pgserver.conf");
 
 CPGConfig g_cfg;
 CConnectCount g_connectCount;
-CSafeQ<CClient> g_loginQ;
-CSafeQ<CClient> g_commQ;
+CSafeQ<CClient*> g_loginQ;
+CSafeQ<CClient*> g_commQ;
 CPollClients g_pollClients;
 
 // function prototypes

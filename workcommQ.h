@@ -7,13 +7,16 @@
 //
 // Source File Name : workcommQ.h
 //
-// Version          : $Id: $
+// Version          : $Id: workcommQ.h,v 1.1 2001/04/23 01:05:46 sconnet Exp sconnet $
 //
 // File Overview    : Process clients on the comm queue
 //
 // Revision History : 
 //
-// $Log: $
+// $Log: workcommQ.h,v $
+// Revision 1.1  2001/04/23 01:05:46  sconnet
+// Initial revision
+//
 //
 //
 //*****************************************************************************
@@ -30,7 +33,7 @@ class CWorkCommQ : public CWork
   virtual ~CWorkCommQ() {}
   
  private:
-  void ProcessQueue();
+  void ProcessQueue(CClient& client) const;
 };
 
 #endif // __WORKCOMMQ_H_

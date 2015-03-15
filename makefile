@@ -7,13 +7,16 @@
 #
 # Source File Name : makefile
 #
-# Version          : $Id: make.default,v 1.2 2001/04/23 01:07:30 sconnet Exp $
+# Version          : $Id: makefile,v 1.4 2015/03/15 03:08:36 clu Exp $
 #
 # File Overview    : Makefile to make the Pear Gear server
 #
 # Revision History : 
 #
-# $Log: make.default,v $
+# $Log: makefile,v $
+# Revision 1.4  2015/03/15 03:08:36  clu
+# updated dependencies for building on osx yosemite
+#
 # Revision 1.2  2001/04/23 01:07:30  sconnet
 # continued development
 #

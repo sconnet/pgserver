@@ -7,13 +7,16 @@
 //
 // Source File Name : pgconfig.h
 //
-// Version          : $Id: pgconfig.h,v 1.2 2001/04/21 06:27:39 sconnet Exp sconnet $
+// Version          : $Id: pgconfig.h,v 1.3 2001/04/23 01:05:46 sconnet Exp $
 //
 // File Overview    : Stores all configuration items
 //
 // Revision History : 
 //
 // $Log: pgconfig.h,v $
+// Revision 1.3  2001/04/23 01:05:46  sconnet
+// continued development
+//
 // Revision 1.2  2001/04/21 06:27:39  sconnet
 // developmental changes
 //

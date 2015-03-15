@@ -7,13 +7,16 @@
 //
 // Source File Name : utils.cpp
 //
-// Version          : $Id: utils.cpp,v 1.1 2001/04/21 02:51:43 sconnet Exp sconnet $
+// Version          : $Id: utils.cpp,v 1.2 2001/04/23 01:05:46 sconnet Exp $
 //
 // File Overview    : Implementation of the utility functions.
 //
 // Revision History : 
 //
 // $Log: utils.cpp,v $
+// Revision 1.2  2001/04/23 01:05:46  sconnet
+// continued development
+//
 // Revision 1.1  2001/04/21 02:51:43  sconnet
 // Initial revision
 //

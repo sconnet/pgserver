@@ -7,14 +7,17 @@
 //
 // Source File Name : safeQ.h
 //
-// Version          : $Id: $
+// Version          : $Id: safeQ.h,v 1.1 2001/04/23 01:05:46 sconnet Exp $
 //
 // File Overview    : Thread-safe queue of anything you want with trigger
 //                    on insert
 //
 // Revision History : 
 //
-// $Log: $
+// $Log: safeQ.h,v $
+// Revision 1.1  2001/04/23 01:05:46  sconnet
+// Initial revision
+//
 //
 //
 //*****************************************************************************

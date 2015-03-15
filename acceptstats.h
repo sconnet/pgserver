@@ -7,13 +7,16 @@
 //
 // Source File Name : acceptstats.h
 //
-// Version          : $Id: acceptstats.h,v 1.1 2001/04/21 02:51:43 sconnet Exp sconnet $
+// Version          : $Id: acceptstats.h,v 1.2 2001/04/23 01:05:46 sconnet Exp $
 //
 // File Overview    : spew stats out to a newly connected client
 //
 // Revision History : 
 //
 // $Log: acceptstats.h,v $
+// Revision 1.2  2001/04/23 01:05:46  sconnet
+// continued development
+//
 // Revision 1.1  2001/04/21 02:51:43  sconnet
 // Initial revision
 //

@@ -7,7 +7,7 @@
 //
 // Source File Name : client.h
 //
-// Version          : $Id: client.h,v 1.1 2001/04/21 02:51:43 sconnet Exp sconnet $
+// Version          : $Id: client.h,v 1.2 2001/04/23 01:05:46 sconnet Exp sconnet $
 //
 // File Overview    : Non-concurrent client connection
 //                    This object *is* the client connection and is 
@@ -19,6 +19,9 @@
 // Revision History : 
 //
 // $Log: client.h,v $
+// Revision 1.2  2001/04/23 01:05:46  sconnet
+// continued development
+//
 // Revision 1.1  2001/04/21 02:51:43  sconnet
 // Initial revision
 //
@@ -28,6 +31,7 @@
 #ifndef __CLIENT_H_
 #define __CLIENT_H_
 
+#include <fstream>
 #include <iostream>
 #include <string>
 
@@ -35,8 +39,6 @@
 
 class CClient : private CLock
 {
-  friend class CPollClients;
-
  public:
   CClient();
   CClient(int fd, int nPort, const char* sIpAddr,
@@ -44,17 +46,17 @@ class CClient : private CLock
   virtual ~CClient();
   
   void disconnect() const;
-  inline int operator<<(int nMsg) { return sendMessage(nMsg); }
-  inline int operator>>(int& nMsg) { return readMessage(nMsg); }
+  int operator<<(int nMsg) { return sendMessage(nMsg); }
+  int operator>>(int& nMsg) { return readMessage(nMsg); }
   friend ostream& operator<<(ostream& output, const CClient& client);
   
   // access methods
-  inline int getFD() const { return m_fd; }
-  inline int getPort() const { return m_nPort; }
-  inline const string& getHostname() const { return m_sHostname; }
-  inline const string& getIpAddr() const { return m_sIpAddr; }
+  int getFD() const { return m_fd; }
+  int getPort() const { return m_nPort; }
+  const string& getHostname() const { return m_sHostname; }
+  const string& getIpAddr() const { return m_sIpAddr; }
   
-  inline void setGracefulShutdown(bool bGracefulShutdown = true)
+  void setGracefulShutdown(bool bGracefulShutdown = true)
     { m_bGracefulShutdown = bGracefulShutdown; }
   
   // TODO:
@@ -71,8 +73,6 @@ class CClient : private CLock
   bool m_bGracefulShutdown;
   string m_sHostname;
   string m_sIpAddr;
-  //  char m_sHostname[256];
-  //  char m_sIpAddr[16];
 };
 
 #endif // __CLIENT_H_

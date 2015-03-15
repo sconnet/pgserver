@@ -7,13 +7,16 @@
 //
 // Source File Name : config.cpp
 //
-// Version          : $Id: config.cpp,v 1.2 2001/04/21 06:23:15 sconnet Exp sconnet $
+// Version          : $Id: config.cpp,v 1.3 2001/04/23 01:05:46 sconnet Exp $
 //
 // File Overview    : Implementation of the config object
 //
 // Revision History : 
 //
 // $Log: config.cpp,v $
+// Revision 1.3  2001/04/23 01:05:46  sconnet
+// continued development
+//
 // Revision 1.2  2001/04/21 06:23:15  sconnet
 // lock around container access
 //

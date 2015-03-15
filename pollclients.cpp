@@ -7,13 +7,16 @@
 //
 // Source File Name : pollclients.cpp
 //
-// Version          : $Id: $
+// Version          : $Id: pollclients.cpp,v 1.2 2001/04/23 01:05:46 sconnet Exp sconnet $
 //
 // File Overview    : 
 //
 // Revision History : 
 //
-// $Log: $
+// $Log: pollclients.cpp,v $
+// Revision 1.2  2001/04/23 01:05:46  sconnet
+// continued development
+//
 //
 //
 //*****************************************************************************
@@ -90,14 +93,14 @@ void CPollClients::insert(const CClient& client)
   traceBegin(method);
   
   lock();
-  m_map[client.m_fd] = client;
+  m_map[client.getFD()] = client;
   unlock();
   
-  FD_SET(client.m_fd, &m_clients);
+  FD_SET(client.getFD(), &m_clients);
 
   // TODO: this may not work if the fd's roll back to a lower number
-  if(m_nMaxFd <= client.m_fd)
-    m_nMaxFd = client.m_fd;
+  if(m_nMaxFd <= client.getFD())
+    m_nMaxFd = client.getFD();
   
   traceEnd(method);
   
@@ -109,9 +112,9 @@ void CPollClients::erase(const CClient& client)
   traceBegin(method);
   
   lock();
-  m_map.erase(client.m_fd);
+  m_map.erase(client.getFD());
   unlock();
-  FD_CLR(client.m_fd, &m_clients);
+  FD_CLR(client.getFD(), &m_clients);
 
   traceEnd(method);
   
@@ -168,12 +171,15 @@ void CPollClients::thread()
       lock();
       ClientMap::iterator p = m_map.begin();
       while(p != m_map.end()) {
-        if(FD_ISSET(p->second.m_fd, &read_set)) {
+        if(FD_ISSET(p->second.getFD(), &read_set)) {
                     
           // remove fd from master fd_set
-          FD_CLR(p->second.m_fd, &m_clients);
+          FD_CLR(p->second.getFD(), &m_clients);
 
           // insert client in queue to be read
+          DEBUG(method, "fd %d is set, putting %s (%s) in commQ\n",
+                p->second.getFD(), p->second.getIpAddr().c_str(),
+                p->second.getHostname().c_str());
           g_commQ << p->second;
         }
         

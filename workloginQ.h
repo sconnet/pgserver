@@ -7,13 +7,16 @@
 //
 // Source File Name : workloginQ.h
 //
-// Version          : $Id: $
+// Version          : $Id: workloginQ.h,v 1.1 2001/04/23 01:05:46 sconnet Exp sconnet $
 //
 // File Overview    : Process clients on the login queue
 //
 // Revision History : 
 //
-// $Log: $
+// $Log: workloginQ.h,v $
+// Revision 1.1  2001/04/23 01:05:46  sconnet
+// Initial revision
+//
 //
 //
 //*****************************************************************************
@@ -30,7 +33,7 @@ class CWorkLoginQ : public CWork
   virtual ~CWorkLoginQ() {}
   
  private:
-  void ProcessQueue();
+  void ProcessQueue(CClient& client) const;
 };
 
 #endif // __WORKLOGINQ_H_

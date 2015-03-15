@@ -7,13 +7,16 @@
 //
 // Source File Name : client.cpp
 //
-// Version          : $Id: client.cpp,v 1.1 2001/04/21 02:51:43 sconnet Exp sconnet $
+// Version          : $Id: client.cpp,v 1.2 2001/04/23 01:05:46 sconnet Exp sconnet $
 //
 // File Overview    : Implementation of the client connection
 //
 // Revision History : 
 //
 // $Log: client.cpp,v $
+// Revision 1.2  2001/04/23 01:05:46  sconnet
+// continued development
+//
 // Revision 1.1  2001/04/21 02:51:43  sconnet
 // Initial revision
 //
@@ -25,8 +28,10 @@
 #include "utils.h"
 
 #include <sys/socket.h>
-#include <string.h>
-#include <stdlib.h>
+
+#include <cstring>
+#include <cstdlib>
+#include <new>
 
 //
 //-------------------------------------------------------------------------
@@ -44,8 +49,8 @@ ostream& operator<<(ostream& output, const CClient& client)
   string fn("CClient operator<<");
   traceBegin(fn);
   
-  output << client.m_sIpAddr << " (" << client.m_sHostname << ") ";
-  output << client.m_nPort;
+  output << client.m_sIpAddr << ":" << client.m_nPort;
+  output << " " << client.m_sHostname;
     
   traceEnd(fn);
   return output;
@@ -95,12 +100,9 @@ CClient::CClient(int fd, int nPort, const char* sIpAddr,
   string method("CClient::CClient");
   traceBegin(method);
   
-  // tell the world we have a new connection
+  SYSLOG(LOG_INFO, "Connect %s:%u %s", m_sIpAddr.c_str(), m_nPort,
+         m_sHostname.c_str());
   
-  cout << "Connect " << m_sIpAddr << ":" << m_nPort << " " << m_sHostname;
-  cout << endl;
-  //  syslog(LOG_INFO, "Connect %s:%u %s", m_sIpAddr, m_nPort, m_sHostname);
-
   traceEnd(method);
 }
 
@@ -141,6 +143,7 @@ void CClient::disconnect() const
   // tell the world we are dumping this stooge
   syslog(LOG_INFO, "Closing %s:%u %s", m_sIpAddr.c_str(), m_nPort,
          m_sHostname.c_str());
+
   if(m_bGracefulShutdown) {
     sendMessage(MSG_DISCONNECT);
     shutdown(m_fd, SHUT_RDWR);
@@ -166,7 +169,7 @@ int CClient::sendMessage(int nMsg) const
 {
   string method("CClient::sendMessage");
   traceBegin(method);
-  
+
   lock();
   int nResult = Write(m_fd, &nMsg, sizeof(nMsg));
   unlock();
@@ -193,11 +196,9 @@ int CClient::readMessage(int &nMsg) const
   string method("CClient::readMessage");
   traceBegin(method);
   
-  char sTemp[256] = { 0 };
   lock();
-  int nResult = Read(m_fd, sTemp, sizeof(nMsg));
+  int nResult = read(m_fd, &nMsg, sizeof(nMsg));
   unlock();
-  nMsg = atoi(sTemp);
   
   traceEnd(method);
   return nResult;

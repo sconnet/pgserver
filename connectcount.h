@@ -7,7 +7,7 @@
 //
 // Source File Name : connectcount.h
 //
-// Version          : $Id: connectcount.h,v 1.1 2001/04/21 02:51:43 sconnet Exp sconnet $
+// Version          : $Id: connectcount.h,v 1.2 2001/04/23 01:05:46 sconnet Exp $
 //
 // File Overview    : Keeps track of the number of connections
 //                    for each unique ip address. Does not allow
@@ -22,6 +22,9 @@
 // Revision History : 
 //
 // $Log: connectcount.h,v $
+// Revision 1.2  2001/04/23 01:05:46  sconnet
+// continued development
+//
 // Revision 1.1  2001/04/21 02:51:43  sconnet
 // Initial revision
 //

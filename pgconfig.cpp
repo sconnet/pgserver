@@ -7,13 +7,16 @@
 //
 // Source File Name : pgconfig.cpp
 //
-// Version          : $Id: $
+// Version          : $Id: pgconfig.cpp,v 1.1 2001/04/23 01:05:46 sconnet Exp $
 //
 // File Overview    : Stores all configuration items
 //
 // Revision History : 
 //
-// $Log: $
+// $Log: pgconfig.cpp,v $
+// Revision 1.1  2001/04/23 01:05:46  sconnet
+// Initial revision
+//
 //
 //
 //*****************************************************************************
