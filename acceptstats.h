@@ -11,7 +11,7 @@
 //
 // File Overview    : spew stats out to a newly connected client
 //
-// Revision History : 
+// Revision History :
 //
 // $Log: acceptstats.h,v $
 // Revision 1.2  2001/04/23 01:05:46  sconnet
@@ -31,15 +31,15 @@
 
 class CAcceptStats : public CListen
 {
- public:
-  CAcceptStats();
-  virtual ~CAcceptStats() {}
-  
-  void start();
-  void stop(bool waitForThreadJoin = true);
-  
- private:
-  void onAccept(const CClient& client);
+public:
+    CAcceptStats();
+    virtual ~CAcceptStats() {}
+
+    void start();
+    void stop(bool waitForThreadJoin = true);
+
+private:
+    void onAccept(const CClient &client);
 };
 
 #endif // __ACCEPTSTATS_H_

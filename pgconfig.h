@@ -11,7 +11,7 @@
 //
 // File Overview    : Stores all configuration items
 //
-// Revision History : 
+// Revision History :
 //
 // $Log: pgconfig.h,v $
 // Revision 1.3  2001/04/23 01:05:46  sconnet
@@ -34,49 +34,69 @@
 
 class CPGConfig : public CConfig
 {
- public:
-  CPGConfig() :
-    m_nStatsPort(32902),
-    m_nAcceptStatsThreadTimeout(1000),
-    m_nClientPort(32903),
-    m_nAcceptClientThreadTimeout(1000),
-    m_nMaxConnectionsPerIP(5),
-    m_nLoginQThreads(5),
-    m_nCommQThreads(10),
-    m_nWorkIdleTime(1000),
-    m_nTriggerTimeout(1000),
-    m_bLogClientName(false)
+public:
+    CPGConfig() :
+        m_nStatsPort(32902),
+        m_nAcceptStatsThreadTimeout(1000),
+        m_nClientPort(32903),
+        m_nAcceptClientThreadTimeout(1000),
+        m_nMaxConnectionsPerIP(5),
+        m_nLoginQThreads(5),
+        m_nCommQThreads(10),
+        m_nWorkIdleTime(1000),
+        m_nTriggerTimeout(1000),
+        m_bLogClientName(false)
     {}
-  ~CPGConfig() {}
+    ~CPGConfig() {}
 
-  friend std::ostream& operator<<(std::ostream& out, const CPGConfig& cfg);
+    friend std::ostream &operator<<(std::ostream &out, const CPGConfig &cfg);
 
-  inline int statsPort() const { return m_nStatsPort; }
-  inline int acceptStatsThreadTimeout() const
-    { return m_nAcceptStatsThreadTimeout; }
-  inline int clientPort() const { return m_nClientPort; }
-  inline int acceptClientThreadTimeout() const
-    { return m_nAcceptClientThreadTimeout; }
-  inline int maxConnectionsPerIP() const { return m_nMaxConnectionsPerIP; }
-  inline int loginQThreads() const { return m_nLoginQThreads; }
-  inline int commQThreads() const { return m_nCommQThreads; }
-  inline int workIdleTime() const { return m_nWorkIdleTime; }
-  inline int triggerTimeout() const { return m_nTriggerTimeout; }
-  inline bool logClientName() const { return m_bLogClientName; }
-  
-  bool read(const std::string& sFilename);
-  
- private:
-  int m_nStatsPort;
-  int m_nAcceptStatsThreadTimeout;
-  int m_nClientPort;
-  int m_nAcceptClientThreadTimeout;
-  int m_nMaxConnectionsPerIP;
-  int m_nLoginQThreads;
-  int m_nCommQThreads;
-  int m_nWorkIdleTime;
-  int m_nTriggerTimeout;
-  bool m_bLogClientName;
+    inline int statsPort() const {
+        return m_nStatsPort;
+    }
+    inline int acceptStatsThreadTimeout() const
+    {
+        return m_nAcceptStatsThreadTimeout;
+    }
+    inline int clientPort() const {
+        return m_nClientPort;
+    }
+    inline int acceptClientThreadTimeout() const
+    {
+        return m_nAcceptClientThreadTimeout;
+    }
+    inline int maxConnectionsPerIP() const {
+        return m_nMaxConnectionsPerIP;
+    }
+    inline int loginQThreads() const {
+        return m_nLoginQThreads;
+    }
+    inline int commQThreads() const {
+        return m_nCommQThreads;
+    }
+    inline int workIdleTime() const {
+        return m_nWorkIdleTime;
+    }
+    inline int triggerTimeout() const {
+        return m_nTriggerTimeout;
+    }
+    inline bool logClientName() const {
+        return m_bLogClientName;
+    }
+
+    bool read(const std::string &sFilename);
+
+private:
+    int m_nStatsPort;
+    int m_nAcceptStatsThreadTimeout;
+    int m_nClientPort;
+    int m_nAcceptClientThreadTimeout;
+    int m_nMaxConnectionsPerIP;
+    int m_nLoginQThreads;
+    int m_nCommQThreads;
+    int m_nWorkIdleTime;
+    int m_nTriggerTimeout;
+    bool m_bLogClientName;
 };
 
 #endif // __PGCONFIG_H_

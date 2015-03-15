@@ -13,7 +13,7 @@
 //                    each name value pair into a map for quick
 //                    hashing and retrieval. This is thread-safe.
 //
-// Revision History : 
+// Revision History :
 //
 // $Log: config.h,v $
 // Revision 1.4  2001/04/23 01:05:46  sconnet
@@ -44,26 +44,30 @@ typedef std::map<std::string, std::string> CMap;
 
 class CConfig : private CLock
 {
- public:
-  CConfig() {}
-  virtual ~CConfig() {}
-  
-  virtual bool read(const std::string& sFilename);  
-  
-  inline std::string operator()(const char* szName, const char* szDefault = "")
-    { return getValueAsStr(szName, szDefault); }
-  
-  inline int operator()(const char* szName, int nDefault = 0)
-    { return getValueAsInt(szName, nDefault); }
+public:
+    CConfig() {}
+    virtual ~CConfig() {}
 
-  friend std::ostream& operator<<(std::ostream& out, const CConfig& cfg);
+    virtual bool read(const std::string &sFilename);
 
- protected:
-  std::string getValueAsStr(const char* szName, const char* szDefault = "");
-  int getValueAsInt(const char* szName, int nDefault = 0);
-  
- private:
-  CMap m_map;
+    inline std::string operator()(const char *szName, const char *szDefault = "")
+    {
+        return getValueAsStr(szName, szDefault);
+    }
+
+    inline int operator()(const char *szName, int nDefault = 0)
+    {
+        return getValueAsInt(szName, nDefault);
+    }
+
+    friend std::ostream &operator<<(std::ostream &out, const CConfig &cfg);
+
+protected:
+    std::string getValueAsStr(const char *szName, const char *szDefault = "");
+    int getValueAsInt(const char *szName, int nDefault = 0);
+
+private:
+    CMap m_map;
 };
 
 #endif // __CONFIG_H_

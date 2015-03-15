@@ -11,7 +11,7 @@
 //
 // File Overview    : Implementation of the config object
 //
-// Revision History : 
+// Revision History :
 //
 // $Log: config.cpp,v $
 // Revision 1.3  2001/04/23 01:05:46  sconnet
@@ -52,23 +52,24 @@ extern string g_sConfigfile;
 //
 //-------------------------------------------------------------------------
 //
-ostream& operator<<(ostream& out, const CConfig& cfg)
+ostream &operator<<(ostream &out, const CConfig &cfg)
 {
-  string method("CConfig::operator<<");
-  traceBegin(method);
+    string method("CConfig::operator<<");
+    traceBegin(method);
 
-  out << "[" << g_sConfigfile << "]" << '\n';
-  
-  CMap::const_iterator p;
-  cfg.lock();
-  for(p = cfg.m_map.begin(); p != cfg.m_map.end(); p++)
-    out << p->first << "=" << p->second << '\n';
-  cfg.unlock();
-  
-  out << endl;
+    out << "[" << g_sConfigfile << "]" << '\n';
 
-  traceEnd(method);
-  return out;
+    CMap::const_iterator p;
+    cfg.lock();
+    for(p = cfg.m_map.begin(); p != cfg.m_map.end(); p++) {
+        out << p->first << "=" << p->second << '\n';
+    }
+    cfg.unlock();
+
+    out << endl;
+
+    traceEnd(method);
+    return out;
 
 } // operator<<
 
@@ -83,38 +84,38 @@ ostream& operator<<(ostream& out, const CConfig& cfg)
 //
 //-------------------------------------------------------------------------
 //
-bool CConfig::read(const string& sFilename)
+bool CConfig::read(const string &sFilename)
 {
-  string method("CConfig::read");
-  traceBegin(method);
-  
-  string buf;
-  m_map.clear();
-  ifstream infile(sFilename.c_str(), ios::in);
-  bool ok = infile;
-  while(getline(infile, buf)) {
-    if(buf.length() && isalpha(buf[0])) {
-      transform(buf.begin(), buf.end(), buf.begin(), ::toupper);
-      string::size_type pos = buf.find_first_of('=');
-      string name(buf.substr(0, pos));
-      string value(buf.substr(pos + 1));
-      lock();
-      m_map[trimLeft(trimRight(name))] = trimLeft(trimRight(value));
-      unlock();
+    string method("CConfig::read");
+    traceBegin(method);
+
+    string buf;
+    m_map.clear();
+    ifstream infile(sFilename.c_str(), ios::in);
+    bool ok = infile;
+    while(getline(infile, buf)) {
+        if(buf.length() && isalpha(buf[0])) {
+            transform(buf.begin(), buf.end(), buf.begin(), ::toupper);
+            string::size_type pos = buf.find_first_of('=');
+            string name(buf.substr(0, pos));
+            string value(buf.substr(pos + 1));
+            lock();
+            m_map[trimLeft(trimRight(name))] = trimLeft(trimRight(value));
+            unlock();
+        }
     }
-  }
 
-  infile.close();
+    infile.close();
 
-  traceEnd(method);
-  return ok;
-  
+    traceEnd(method);
+    return ok;
+
 } // read
 
 //
 //-------------------------------------------------------------------------
 // Function       : string CConfig::getValueAsStr(const char* sName,
-//                                                const char* sDefault) 
+//                                                const char* sDefault)
 //
 //
 // Implementation : Returns a value given a name. If name is not
@@ -124,26 +125,27 @@ bool CConfig::read(const string& sFilename)
 //
 //-------------------------------------------------------------------------
 //
-string CConfig::getValueAsStr(const char* szName,
-                              const char* szDefault)
+string CConfig::getValueAsStr(const char *szName,
+                              const char *szDefault)
 {
-  string method("CConfig::GetValueAsStr");
-  traceBegin(method);
-  
-  string sReturnVal(szDefault);
-  string sName(szName);
-  transform(sName.begin(), sName.end(), sName.begin(), ::toupper);
-  
-  // find it in the map
-  lock();
-  CMap::iterator p = m_map.find(sName);
-  if(p != m_map.end())
-    sReturnVal = p->second;
-  unlock();  
+    string method("CConfig::GetValueAsStr");
+    traceBegin(method);
 
-  traceEnd(method);
-  return sReturnVal;
-  
+    string sReturnVal(szDefault);
+    string sName(szName);
+    transform(sName.begin(), sName.end(), sName.begin(), ::toupper);
+
+    // find it in the map
+    lock();
+    CMap::iterator p = m_map.find(sName);
+    if(p != m_map.end()) {
+        sReturnVal = p->second;
+    }
+    unlock();
+
+    traceEnd(method);
+    return sReturnVal;
+
 } // getValueAsString
 
 //
@@ -159,17 +161,18 @@ string CConfig::getValueAsStr(const char* szName,
 //
 //-------------------------------------------------------------------------
 //
-int CConfig::getValueAsInt(const char* szName, int nDefault)
+int CConfig::getValueAsInt(const char *szName, int nDefault)
 {
-  string method("CConfig::getValueAsInt");
-  traceBegin(method);
-  
-  int nRetVal = nDefault;
-  string s(getValueAsStr(szName));
-  if(s.length())
-    nRetVal = atoi(s.c_str());
-  
-  traceEnd(method);
-  return nRetVal;
-  
+    string method("CConfig::getValueAsInt");
+    traceBegin(method);
+
+    int nRetVal = nDefault;
+    string s(getValueAsStr(szName));
+    if(s.length()) {
+        nRetVal = atoi(s.c_str());
+    }
+
+    traceEnd(method);
+    return nRetVal;
+
 } // getValueAsInt

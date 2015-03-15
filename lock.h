@@ -11,7 +11,7 @@
 //
 // File Overview    : Base class for locking mechanism
 //
-// Revision History : 
+// Revision History :
 //
 // $Log: lock.h,v $
 // Revision 1.3  2001/04/23 01:05:46  sconnet
@@ -34,16 +34,26 @@
 
 class CLock
 {
- protected:
-  CLock() { pthread_mutex_init(&m_lock, NULL); }
-  virtual ~CLock() { pthread_mutex_destroy(&m_lock); }
-  
-  virtual void lock() const { pthread_mutex_lock(&m_lock); }
-  virtual void unlock() const { pthread_mutex_unlock(&m_lock); }
-  virtual bool trylock() const { return pthread_mutex_trylock(&m_lock) == 0; }
-  
- private:
-  mutable pthread_mutex_t m_lock;
+protected:
+    CLock() {
+        pthread_mutex_init(&m_lock, NULL);
+    }
+    virtual ~CLock() {
+        pthread_mutex_destroy(&m_lock);
+    }
+
+    virtual void lock() const {
+        pthread_mutex_lock(&m_lock);
+    }
+    virtual void unlock() const {
+        pthread_mutex_unlock(&m_lock);
+    }
+    virtual bool trylock() const {
+        return pthread_mutex_trylock(&m_lock) == 0;
+    }
+
+private:
+    mutable pthread_mutex_t m_lock;
 };
 
 #endif // __LOCK_H_

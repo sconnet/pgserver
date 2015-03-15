@@ -11,7 +11,7 @@
 //
 // File Overview    : Implementation of stats spewer
 //
-// Revision History : 
+// Revision History :
 //
 // $Log: acceptstats.cpp,v $
 // Revision 1.2  2001/04/23 01:05:46  sconnet
@@ -43,10 +43,10 @@ extern CPGConfig g_cfg;
 //
 CAcceptStats::CAcceptStats()
 {
-  string method("CAcceptStats::CAcceptStats");
-  traceBegin(method);
-  displayLocalHost();
-  traceEnd(method);
+    string method("CAcceptStats::CAcceptStats");
+    traceBegin(method);
+    displayLocalHost();
+    traceEnd(method);
 }
 
 //
@@ -61,18 +61,18 @@ CAcceptStats::CAcceptStats()
 //
 void CAcceptStats::start()
 {
-  string method("CAcceptStats::start");
-  traceBegin(method);
+    string method("CAcceptStats::start");
+    traceBegin(method);
 
-  // do initialization here
-  
-  // call base class
-  init(g_cfg.statsPort(),
-       g_cfg.acceptStatsThreadTimeout());
-  CListen::start();
-  
-  traceEnd(method);
-  
+    // do initialization here
+
+    // call base class
+    init(g_cfg.statsPort(),
+         g_cfg.acceptStatsThreadTimeout());
+    CListen::start();
+
+    traceEnd(method);
+
 } // start
 
 
@@ -88,16 +88,16 @@ void CAcceptStats::start()
 //
 void CAcceptStats::stop(bool waitForThreadJoin)
 {
-  string method("CAcceptStats::stop");
-  traceBegin(method);
+    string method("CAcceptStats::stop");
+    traceBegin(method);
 
-  // clean up
+    // clean up
 
-  // call base class
-  CListen::stop(waitForThreadJoin);
-  
-  traceEnd(method);
-  
+    // call base class
+    CListen::stop(waitForThreadJoin);
+
+    traceEnd(method);
+
 } // stop
 
 
@@ -111,21 +111,21 @@ void CAcceptStats::stop(bool waitForThreadJoin)
 //
 //-------------------------------------------------------------------------
 //
-void CAcceptStats::onAccept(const CClient& client)
+void CAcceptStats::onAccept(const CClient &client)
 {
-  string method("CAcceptStats::onAccept");
-  traceBegin(method);
-  
-  // tell stats object to spew data to this fd
-  // maybe put them in a queue
-  // then the stats object will read the queue and dump the stats
-  // that way we return immediately for more accepts
-  //TODO:    g_Stats.Spew(pClient->Getfd());
-  // problem.. need to lock fd. fd is private
-  //TODO:    g_Stats << pClient->Getfd();
-  
-  client.disconnect();
-  
-  traceEnd(method);
-  
+    string method("CAcceptStats::onAccept");
+    traceBegin(method);
+
+    // tell stats object to spew data to this fd
+    // maybe put them in a queue
+    // then the stats object will read the queue and dump the stats
+    // that way we return immediately for more accepts
+    //TODO:    g_Stats.Spew(pClient->Getfd());
+    // problem.. need to lock fd. fd is private
+    //TODO:    g_Stats << pClient->Getfd();
+
+    client.disconnect();
+
+    traceEnd(method);
+
 } // onAccept

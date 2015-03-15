@@ -11,7 +11,7 @@
 //
 // File Overview    : Process clients on the comm queue
 //
-// Revision History : 
+// Revision History :
 //
 // $Log: workcommQ.cpp,v $
 // Revision 1.1  2001/04/23 01:05:46  sconnet
@@ -44,55 +44,56 @@ extern CPGConfig g_cfg;
 //
 //-------------------------------------------------------------------------
 //
-void CWorkCommQ::ProcessQueue(CClient& client) const
+void CWorkCommQ::ProcessQueue(CClient &client) const
 {
-  string method("CWorkCommQ::ProcessQueue");
-  traceBegin(method);
-  
-  if(g_commQ >> client) {
-    int nMsg = -1;
-    int nRes;
-    bool bGibberish = false;
-    
-    if((nRes = (client >> nMsg)) > 0) {
-      DEBUG(method, "client msg: %d\n", nMsg);
-      
-      // search, identify, chat, disconnect, etc.
-      
-      switch(nMsg) {
-      case MSG_DISCONNECT:
-        cout << "MSG_DISCONNECT" << endl;
-        break;
-      case MSG_SEARCHRESULT:
-        cout << "MSG_SEARCHRESULT" << endl;
-        break;
-      case MSG_USERID:
-        cout << "MSG_USERID" << endl;
-        break;
-      default:
-        SYSLOG(LOG_WARNING, "Client sending gibberish=%d %s:%d, disconnecting", 
-               nMsg, client.getIpAddr().c_str(), client.getPort());      
-        disconnect(client);
-        bGibberish = true;
-        break;
-      }
-      
-      // insert client back in pollClients if they seem to make sense
-      if(!bGibberish)
-        g_pollClients << client;
+    string method("CWorkCommQ::ProcessQueue");
+    traceBegin(method);
+
+    if(g_commQ >> client) {
+        int nMsg = -1;
+        int nRes;
+        bool bGibberish = false;
+
+        if((nRes = (client >> nMsg)) > 0) {
+            DEBUG(method, "client msg: %d\n", nMsg);
+
+            // search, identify, chat, disconnect, etc.
+
+            switch(nMsg) {
+                case MSG_DISCONNECT:
+                    cout << "MSG_DISCONNECT" << endl;
+                    break;
+                case MSG_SEARCHRESULT:
+                    cout << "MSG_SEARCHRESULT" << endl;
+                    break;
+                case MSG_USERID:
+                    cout << "MSG_USERID" << endl;
+                    break;
+                default:
+                    SYSLOG(LOG_WARNING, "Client sending gibberish=%d %s:%d, disconnecting",
+                           nMsg, client.getIpAddr().c_str(), client.getPort());
+                    disconnect(client);
+                    bGibberish = true;
+                    break;
+            }
+
+            // insert client back in pollClients if they seem to make sense
+            if(!bGibberish) {
+                g_pollClients << client;
+            }
+        }
+        else if(nRes == 0) {
+            SYSLOG(LOG_INFO, "Client disconnected %s:%d",
+                   client.getIpAddr().c_str(), client.getPort());
+            disconnect(client);
+        }
+        else {
+            SYSLOG(LOG_WARNING, "Error reading client %s:%d, disconnecting",
+                   client.getIpAddr().c_str(), client.getPort());
+            disconnect(client);
+        }
     }
-    else if(nRes == 0) {
-      SYSLOG(LOG_INFO, "Client disconnected %s:%d", 
-             client.getIpAddr().c_str(), client.getPort());      
-      disconnect(client);
-    }
-    else {      
-      SYSLOG(LOG_WARNING, "Error reading client %s:%d, disconnecting", 
-             client.getIpAddr().c_str(), client.getPort());      
-      disconnect(client);
-    }
-  }
-  
-  traceEnd(method);
-  
+
+    traceEnd(method);
+
 } // ProcessQueue

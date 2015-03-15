@@ -19,7 +19,7 @@
 //                    their count. If the count reaches zero, their
 //                    ip is taken out of the map
 //
-// Revision History : 
+// Revision History :
 //
 // $Log: connectcount.h,v $
 // Revision 1.2  2001/04/23 01:05:46  sconnet
@@ -49,22 +49,28 @@ typedef std::map<std::string /* ipaddr */, int /* count */> CountMap;
 
 class CConnectCount : private CLock
 {
-  public:
-  CConnectCount() {}
-  virtual ~CConnectCount() {}
-  
-  inline bool operator+=(const std::string& sIpAddr) { return Insert(sIpAddr); }
-  inline bool operator-=(const std::string& sIpAddr) { return Erase(sIpAddr); }
-  inline int operator<<(const std::string& sIpAddr) { return GetCount(sIpAddr); }
-  int GetTotal() const;
-  
- private:
-  bool Insert(const std::string& sIpAddr);
-  bool Erase(const std::string& sIpAddr);
-  int GetCount(const std::string& sIpAddr) const;
-  
- private:
-  CountMap m_map;
+public:
+    CConnectCount() {}
+    virtual ~CConnectCount() {}
+
+    inline bool operator+=(const std::string &sIpAddr) {
+        return Insert(sIpAddr);
+    }
+    inline bool operator-=(const std::string &sIpAddr) {
+        return Erase(sIpAddr);
+    }
+    inline int operator<<(const std::string &sIpAddr) {
+        return GetCount(sIpAddr);
+    }
+    int GetTotal() const;
+
+private:
+    bool Insert(const std::string &sIpAddr);
+    bool Erase(const std::string &sIpAddr);
+    int GetCount(const std::string &sIpAddr) const;
+
+private:
+    CountMap m_map;
 };
 
 #endif // __CONNECTCOUNT_H_

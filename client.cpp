@@ -11,7 +11,7 @@
 //
 // File Overview    : Implementation of the client connection
 //
-// Revision History : 
+// Revision History :
 //
 // $Log: client.cpp,v $
 // Revision 1.2  2001/04/23 01:05:46  sconnet
@@ -46,17 +46,17 @@ using namespace std;
 //
 //-------------------------------------------------------------------------
 //
-ostream& operator<<(ostream& output, const CClient& client)
+ostream &operator<<(ostream &output, const CClient &client)
 {
-  string fn("CClient operator<<");
-  traceBegin(fn);
-  
-  output << client.m_sIpAddr << ":" << client.m_nPort;
-  output << " " << client.m_sHostname;
-    
-  traceEnd(fn);
-  return output;
-  
+    string fn("CClient operator<<");
+    traceBegin(fn);
+
+    output << client.m_sIpAddr << ":" << client.m_nPort;
+    output << " " << client.m_sHostname;
+
+    traceEnd(fn);
+    return output;
+
 } // operator<<
 
 //
@@ -70,19 +70,19 @@ ostream& operator<<(ostream& output, const CClient& client)
 //-------------------------------------------------------------------------
 //
 CClient::CClient() :
-  m_fd(-1),
-  m_nPort(-1),
-  m_bGracefulShutdown(true)
+    m_fd(-1),
+    m_nPort(-1),
+    m_bGracefulShutdown(true)
 {
-  string method("CClient::CClient (default)");
-  traceBegin(method);
-  traceEnd(method);
+    string method("CClient::CClient (default)");
+    traceBegin(method);
+    traceEnd(method);
 }
 
 //
 //-------------------------------------------------------------------------
-// Function       : CClient::CClient(int fd, int port, 
-//                                   const char* sIpAddr, 
+// Function       : CClient::CClient(int fd, int port,
+//                                   const char* sIpAddr,
 //                                   const char* sHostname = NULL)
 //
 // Implementation : default constructor
@@ -92,21 +92,21 @@ CClient::CClient() :
 //-------------------------------------------------------------------------
 //
 CClient::CClient(int fd, int nPort,
-                 const char* sIpAddr,
-                 const char* sHostname) :
-  m_fd(fd),
-  m_nPort(nPort),
-  m_bGracefulShutdown(true),
-  m_sHostname(sHostname),
-  m_sIpAddr(sIpAddr)
+                 const char *sIpAddr,
+                 const char *sHostname) :
+    m_fd(fd),
+    m_nPort(nPort),
+    m_bGracefulShutdown(true),
+    m_sHostname(sHostname),
+    m_sIpAddr(sIpAddr)
 {
-  string method("CClient::CClient");
-  traceBegin(method);
-  
-  SYSLOG(LOG_INFO, "Connect %s:%u %s", m_sIpAddr.c_str(), m_nPort,
-         m_sHostname.c_str());
-  
-  traceEnd(method);
+    string method("CClient::CClient");
+    traceBegin(method);
+
+    SYSLOG(LOG_INFO, "Connect %s:%u %s", m_sIpAddr.c_str(), m_nPort,
+           m_sHostname.c_str());
+
+    traceEnd(method);
 }
 
 
@@ -122,9 +122,9 @@ CClient::CClient(int fd, int nPort,
 //
 CClient::~CClient()
 {
-  string method("CClient::~CClient");
-  traceBegin(method);
-  traceEnd(method);
+    string method("CClient::~CClient");
+    traceBegin(method);
+    traceEnd(method);
 }
 
 
@@ -140,20 +140,20 @@ CClient::~CClient()
 //
 void CClient::disconnect() const
 {
-  string method("CClient::disconnect");
-  traceBegin(method);
+    string method("CClient::disconnect");
+    traceBegin(method);
 
-  // tell the world we are dumping this stooge
-  syslog(LOG_INFO, "Closing %s:%u %s", m_sIpAddr.c_str(), m_nPort,
-         m_sHostname.c_str());
+    // tell the world we are dumping this stooge
+    syslog(LOG_INFO, "Closing %s:%u %s", m_sIpAddr.c_str(), m_nPort,
+           m_sHostname.c_str());
 
-  if(m_bGracefulShutdown) {
-    sendMessage(MSG_DISCONNECT);
-    shutdown(m_fd, SHUT_RDWR);
-  }
+    if(m_bGracefulShutdown) {
+        sendMessage(MSG_DISCONNECT);
+        shutdown(m_fd, SHUT_RDWR);
+    }
 
-  close(m_fd);
-  traceEnd(method);
+    close(m_fd);
+    traceEnd(method);
 
 } // disconnect
 
@@ -170,15 +170,15 @@ void CClient::disconnect() const
 //
 int CClient::sendMessage(int nMsg) const
 {
-  string method("CClient::sendMessage");
-  traceBegin(method);
+    string method("CClient::sendMessage");
+    traceBegin(method);
 
-  lock();
-  int nResult = Write(m_fd, &nMsg, sizeof(nMsg));
-  unlock();
-  
-  traceEnd(method);
-  return nResult;
+    lock();
+    int nResult = Write(m_fd, &nMsg, sizeof(nMsg));
+    unlock();
+
+    traceEnd(method);
+    return nResult;
 
 } // sendMessage
 
@@ -196,14 +196,14 @@ int CClient::sendMessage(int nMsg) const
 //
 int CClient::readMessage(int &nMsg) const
 {
-  string method("CClient::readMessage");
-  traceBegin(method);
-  
-  lock();
-  int nResult = read(m_fd, &nMsg, sizeof(nMsg));
-  unlock();
-  
-  traceEnd(method);
-  return nResult;
-  
+    string method("CClient::readMessage");
+    traceBegin(method);
+
+    lock();
+    int nResult = read(m_fd, &nMsg, sizeof(nMsg));
+    unlock();
+
+    traceEnd(method);
+    return nResult;
+
 } // readMessage

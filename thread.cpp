@@ -11,7 +11,7 @@
 //
 // File Overview    : Implementation of the thread base class object.
 //
-// Revision History : 
+// Revision History :
 //
 // $Log: thread.cpp,v $
 // Revision 1.2  2001/04/23 01:05:46  sconnet
@@ -37,11 +37,11 @@
 //-------------------------------------------------------------------------
 //
 CThread::CThread() :
-  m_tid(0),
-  m_bKillEventSet(false)
+    m_tid(0),
+    m_bKillEventSet(false)
 {
-  pthread_mutex_init(&m_killLock, NULL);
-  pthread_cond_init(&m_killCondition, NULL);
+    pthread_mutex_init(&m_killLock, NULL);
+    pthread_cond_init(&m_killCondition, NULL);
 }
 
 
@@ -57,8 +57,8 @@ CThread::CThread() :
 //
 CThread::~CThread()
 {
-  pthread_mutex_destroy(&m_killLock);
-  pthread_cond_destroy(&m_killCondition);
+    pthread_mutex_destroy(&m_killLock);
+    pthread_cond_destroy(&m_killCondition);
 }
 
 //
@@ -73,9 +73,10 @@ CThread::~CThread()
 //
 void CThread::start()
 {
-  if(!m_tid)
-    pthread_create(&m_tid, NULL, &_thread, this);
-  
+    if(!m_tid) {
+        pthread_create(&m_tid, NULL, &_thread, this);
+    }
+
 } // start
 
 
@@ -83,7 +84,7 @@ void CThread::start()
 //-------------------------------------------------------------------------
 // Function       : void CThread:: stop(bool waitForThreadJoin = true)
 //
-// Implementation : Sets the kill event to true and signals the kill 
+// Implementation : Sets the kill event to true and signals the kill
 //                  signal. It waits for spawned threads to die if
 //                  requested.
 //
@@ -92,18 +93,18 @@ void CThread::start()
 //-------------------------------------------------------------------------
 //
 void CThread:: stop(bool waitForThreadJoin)
-{ 
-  pthread_mutex_lock(&m_killLock);
-  m_bKillEventSet = true;
-  pthread_mutex_unlock(&m_killLock);
-  pthread_cond_signal(&m_killCondition);
-  
-  if(waitForThreadJoin) {
-    pthread_join(m_tid, NULL);
-    m_tid = 0;
-    m_bKillEventSet = false;
-  }
-  
+{
+    pthread_mutex_lock(&m_killLock);
+    m_bKillEventSet = true;
+    pthread_mutex_unlock(&m_killLock);
+    pthread_cond_signal(&m_killCondition);
+
+    if(waitForThreadJoin) {
+        pthread_join(m_tid, NULL);
+        m_tid = 0;
+        m_bKillEventSet = false;
+    }
+
 } // stop
 
 //
@@ -128,31 +129,31 @@ void CThread:: stop(bool waitForThreadJoin)
 //
 bool CThread::waitForKillEvent(int nTimeout)
 {
-  pthread_mutex_lock(&m_killLock);
-  
-  // TODO: I THINK THIS IS WRONG
-  // IT WILL ALWAYS RETURN FALSE EVEN IF EVENT HAS BEEN TRIGGERED,
-  // THEN ON NEXT ENCOUNTER OF WAITFORKILLEVENT IT WILL RETURN TRUE
-  // INVESTIGATE
-  
+    pthread_mutex_lock(&m_killLock);
+
+    // TODO: I THINK THIS IS WRONG
+    // IT WILL ALWAYS RETURN FALSE EVEN IF EVENT HAS BEEN TRIGGERED,
+    // THEN ON NEXT ENCOUNTER OF WAITFORKILLEVENT IT WILL RETURN TRUE
+    // INVESTIGATE
+
 //    bool bKillEventSet = m_bKillEventSet;
 //    if(!bKillEventSet) {
 //      struct timespec tm;
 //      makeTimespec(nTimeout, tm);
 //      pthread_cond_timedwait(&m_killCondition, &m_killLock, &tm);
 //    }
-  
+
 //    pthread_mutex_unlock(&m_killLock);
 //    return bKillEventSet;
-  
-  if(!m_bKillEventSet) {
-    struct timespec tm;
-    makeTimespec(nTimeout, tm);
-    pthread_cond_timedwait(&m_killCondition, &m_killLock, &tm);
-  }
-  
-  pthread_mutex_unlock(&m_killLock);
-  return m_bKillEventSet;
-  
+
+    if(!m_bKillEventSet) {
+        struct timespec tm;
+        makeTimespec(nTimeout, tm);
+        pthread_cond_timedwait(&m_killCondition, &m_killLock, &tm);
+    }
+
+    pthread_mutex_unlock(&m_killLock);
+    return m_bKillEventSet;
+
 } // waitForKillEvent
 

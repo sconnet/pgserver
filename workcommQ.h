@@ -11,7 +11,7 @@
 //
 // File Overview    : Process clients on the comm queue
 //
-// Revision History : 
+// Revision History :
 //
 // $Log: workcommQ.h,v $
 // Revision 1.1  2001/04/23 01:05:46  sconnet
@@ -28,12 +28,12 @@
 
 class CWorkCommQ : public CWork
 {
- public:
-  CWorkCommQ() {}
-  virtual ~CWorkCommQ() {}
-  
- private:
-  void ProcessQueue(CClient& client) const;
+public:
+    CWorkCommQ() {}
+    virtual ~CWorkCommQ() {}
+
+private:
+    void ProcessQueue(CClient &client) const;
 };
 
 #endif // __WORKCOMMQ_H_

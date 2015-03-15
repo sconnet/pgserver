@@ -11,7 +11,7 @@
 //
 // File Overview    : Stores all configuration items
 //
-// Revision History : 
+// Revision History :
 //
 // $Log: pgconfig.cpp,v $
 // Revision 1.1  2001/04/23 01:05:46  sconnet
@@ -37,28 +37,28 @@ using namespace std;
 //
 //-------------------------------------------------------------------------
 //
-ostream& operator<<(ostream& out, const CPGConfig& cfg)
+ostream &operator<<(ostream &out, const CPGConfig &cfg)
 {
-  string method("CPGConfig::operator<<");
-  traceBegin(method);
-  
-  out << static_cast<CConfig>(cfg);
+    string method("CPGConfig::operator<<");
+    traceBegin(method);
 
-  out << "USING VALUES:" << '\n';
-  out << "StatsPort=" << cfg.statsPort() << '\n';
-  out << "AcceptStatsThreadTimeout=" << cfg.acceptStatsThreadTimeout() << '\n';
-  out << "ClientPort=" << cfg.clientPort() << '\n';
-  out << "AcceptClientThreadTimeout=" <<
-    cfg.acceptClientThreadTimeout() << '\n';
-  out << "MaxConnectionsPerIP=" << cfg.maxConnectionsPerIP() << '\n';
-  out << "LoginQThreads=" << cfg.loginQThreads() << '\n';
-  out << "CommQThreads=" << cfg.commQThreads() << '\n';
-  out << "WorkIdleTime=" << cfg.workIdleTime() << '\n';
-  out << "LogClientName=" << cfg.logClientName() << '\n';
-  out << endl;
+    out << static_cast<CConfig>(cfg);
 
-  traceEnd(method);
-  return out;
+    out << "USING VALUES:" << '\n';
+    out << "StatsPort=" << cfg.statsPort() << '\n';
+    out << "AcceptStatsThreadTimeout=" << cfg.acceptStatsThreadTimeout() << '\n';
+    out << "ClientPort=" << cfg.clientPort() << '\n';
+    out << "AcceptClientThreadTimeout=" <<
+        cfg.acceptClientThreadTimeout() << '\n';
+    out << "MaxConnectionsPerIP=" << cfg.maxConnectionsPerIP() << '\n';
+    out << "LoginQThreads=" << cfg.loginQThreads() << '\n';
+    out << "CommQThreads=" << cfg.commQThreads() << '\n';
+    out << "WorkIdleTime=" << cfg.workIdleTime() << '\n';
+    out << "LogClientName=" << cfg.logClientName() << '\n';
+    out << endl;
+
+    traceEnd(method);
+    return out;
 
 } // operator<<
 
@@ -73,30 +73,30 @@ ostream& operator<<(ostream& out, const CPGConfig& cfg)
 //
 //-------------------------------------------------------------------------
 //
-bool CPGConfig::read(const string& sFilename)
+bool CPGConfig::read(const string &sFilename)
 {
-  string method("CPGConfig::read");
-  traceBegin(method);
-  
-  bool ok = CConfig::read(sFilename);
-  if(ok) {
-    m_nStatsPort = getValueAsInt("StatsPort", m_nStatsPort);
-    m_nAcceptStatsThreadTimeout = getValueAsInt("AcceptStatsThreadTimeout",
-                                                m_nAcceptStatsThreadTimeout);
-    m_nClientPort = getValueAsInt("ClientPort", m_nClientPort);
-    m_nAcceptClientThreadTimeout = getValueAsInt("acceptclientthreadtimeout",
-                                                 m_nAcceptClientThreadTimeout);
-    m_nMaxConnectionsPerIP = getValueAsInt("MaxConnectionsPerIP",
-                                           m_nMaxConnectionsPerIP);
-    m_nLoginQThreads = getValueAsInt("LoginQThreads", m_nLoginQThreads);
-    m_nCommQThreads = getValueAsInt("CommQThreads", m_nCommQThreads);
-    m_nWorkIdleTime = getValueAsInt("WorkIdleTime", m_nWorkIdleTime);
-    m_nTriggerTimeout = getValueAsInt("TriggerTimeout", m_nTriggerTimeout);
-    m_bLogClientName = getValueAsStr("LogClientName", "NO") == "YES";
-  }
+    string method("CPGConfig::read");
+    traceBegin(method);
 
-  traceEnd(method);
-  return ok;
+    bool ok = CConfig::read(sFilename);
+    if(ok) {
+        m_nStatsPort = getValueAsInt("StatsPort", m_nStatsPort);
+        m_nAcceptStatsThreadTimeout = getValueAsInt("AcceptStatsThreadTimeout",
+                                      m_nAcceptStatsThreadTimeout);
+        m_nClientPort = getValueAsInt("ClientPort", m_nClientPort);
+        m_nAcceptClientThreadTimeout = getValueAsInt("acceptclientthreadtimeout",
+                                       m_nAcceptClientThreadTimeout);
+        m_nMaxConnectionsPerIP = getValueAsInt("MaxConnectionsPerIP",
+                                               m_nMaxConnectionsPerIP);
+        m_nLoginQThreads = getValueAsInt("LoginQThreads", m_nLoginQThreads);
+        m_nCommQThreads = getValueAsInt("CommQThreads", m_nCommQThreads);
+        m_nWorkIdleTime = getValueAsInt("WorkIdleTime", m_nWorkIdleTime);
+        m_nTriggerTimeout = getValueAsInt("TriggerTimeout", m_nTriggerTimeout);
+        m_bLogClientName = getValueAsStr("LogClientName", "NO") == "YES";
+    }
+
+    traceEnd(method);
+    return ok;
 
 } // read
 

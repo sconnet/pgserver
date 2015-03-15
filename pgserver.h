@@ -8,11 +8,11 @@
 //
 // Version          : $Id: pgserver.h,v 1.2 2001/04/23 01:05:46 sconnet Exp $
 //
-// File Overview    : Standard include that should be included in 
+// File Overview    : Standard include that should be included in
 //                    EVERY implementation file. Has basic definitions
 //                    and various stuff used by all objects.
 //
-// Revision History : 
+// Revision History :
 //
 // $Log: pgserver.h,v $
 // Revision 1.2  2001/04/23 01:05:46  sconnet

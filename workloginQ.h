@@ -11,7 +11,7 @@
 //
 // File Overview    : Process clients on the login queue
 //
-// Revision History : 
+// Revision History :
 //
 // $Log: workloginQ.h,v $
 // Revision 1.1  2001/04/23 01:05:46  sconnet
@@ -28,12 +28,12 @@
 
 class CWorkLoginQ : public CWork
 {
- public:
-  CWorkLoginQ() {}
-  virtual ~CWorkLoginQ() {}
-  
- private:
-  void ProcessQueue(CClient& client) const;
+public:
+    CWorkLoginQ() {}
+    virtual ~CWorkLoginQ() {}
+
+private:
+    void ProcessQueue(CClient &client) const;
 };
 
 #endif // __WORKLOGINQ_H_

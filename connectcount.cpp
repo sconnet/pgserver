@@ -11,7 +11,7 @@
 //
 // File Overview    : Implementation of the connect count class
 //
-// Revision History : 
+// Revision History :
 //
 // $Log: connectcount.cpp,v $
 // Revision 1.2  2001/04/23 01:05:46  sconnet
@@ -50,32 +50,35 @@ extern CPGConfig g_cfg;
 //
 //-------------------------------------------------------------------------
 //
-bool CConnectCount::Insert(const string& sIpAddr)
+bool CConnectCount::Insert(const string &sIpAddr)
 {
-  string method("CConnectCount::Insert");
-  traceBegin(method);
-  
-  bool bSuccess = true;  
-  lock();
-  
-  // find it in the map
-  CountMap::iterator p = m_map.find(sIpAddr);
-  if(p != m_map.end()) {
+    string method("CConnectCount::Insert");
+    traceBegin(method);
 
-    // already connected
-    if(p->second >= g_cfg.maxConnectionsPerIP())
-      bSuccess = false;
-    else
-      p->second++;  // increment connnection count
-  }
-  else
-    m_map[sIpAddr] = 1; // add to map, 1st connection
-  
-  unlock();
+    bool bSuccess = true;
+    lock();
 
-  traceEnd(method);
-  return bSuccess;
-  
+    // find it in the map
+    CountMap::iterator p = m_map.find(sIpAddr);
+    if(p != m_map.end()) {
+
+        // already connected
+        if(p->second >= g_cfg.maxConnectionsPerIP()) {
+            bSuccess = false;
+        }
+        else {
+            p->second++;    // increment connnection count
+        }
+    }
+    else {
+        m_map[sIpAddr] = 1;    // add to map, 1st connection
+    }
+
+    unlock();
+
+    traceEnd(method);
+    return bSuccess;
+
 } // Insert
 
 
@@ -92,27 +95,28 @@ bool CConnectCount::Insert(const string& sIpAddr)
 //
 //-------------------------------------------------------------------------
 //
-bool CConnectCount::Erase(const string& sIpAddr)
+bool CConnectCount::Erase(const string &sIpAddr)
 {
-  string method("CConnectCount::Erase");
-  traceBegin(method);
-  
-  int nCount = 0;  
-  lock();
-  
-  // find it in the map
-  CountMap::iterator p = m_map.find(sIpAddr);
-  if(p != m_map.end()) {
-    nCount = --(p->second);
-    if(nCount == 0)
-      m_map.erase(sIpAddr);
-  }
-  
-  unlock();  
+    string method("CConnectCount::Erase");
+    traceBegin(method);
 
-  traceEnd(method);
-  return (nCount == 0);
-  
+    int nCount = 0;
+    lock();
+
+    // find it in the map
+    CountMap::iterator p = m_map.find(sIpAddr);
+    if(p != m_map.end()) {
+        nCount = --(p->second);
+        if(nCount == 0) {
+            m_map.erase(sIpAddr);
+        }
+    }
+
+    unlock();
+
+    traceEnd(method);
+    return (nCount == 0);
+
 } // Erase
 
 
@@ -127,24 +131,25 @@ bool CConnectCount::Erase(const string& sIpAddr)
 //
 //-------------------------------------------------------------------------
 //
-int CConnectCount::GetCount(const string& sIpAddr) const
+int CConnectCount::GetCount(const string &sIpAddr) const
 {
-  string method("CConnectCount::GetCount");
-  traceBegin(method);
-  
-  int nCount = 0;  
-  lock();  
+    string method("CConnectCount::GetCount");
+    traceBegin(method);
 
-  // find it in the map
-  CountMap::const_iterator p = m_map.find(sIpAddr);
-  if(p != m_map.end())
-    nCount = p->second;
-  
-  unlock();  
+    int nCount = 0;
+    lock();
 
-  traceEnd(method);
-  return nCount;
-  
+    // find it in the map
+    CountMap::const_iterator p = m_map.find(sIpAddr);
+    if(p != m_map.end()) {
+        nCount = p->second;
+    }
+
+    unlock();
+
+    traceEnd(method);
+    return nCount;
+
 } // GetCount
 
 
@@ -163,22 +168,22 @@ int CConnectCount::GetCount(const string& sIpAddr) const
 //
 int CConnectCount::GetTotal() const
 {
-  string method("CConnectCount::GetTotal");
-  traceBegin(method);
-  
-  int nTotal = 0;
-  lock();
-  
-  // iterate the map and add 'em all up
-  CountMap::const_iterator p = m_map.begin();
-  while(p != m_map.end()) {
-    nTotal += p->second;
-    p++;
-  }
-  
-  unlock();
+    string method("CConnectCount::GetTotal");
+    traceBegin(method);
 
-  traceEnd(method);
-  return nTotal;
-  
+    int nTotal = 0;
+    lock();
+
+    // iterate the map and add 'em all up
+    CountMap::const_iterator p = m_map.begin();
+    while(p != m_map.end()) {
+        nTotal += p->second;
+        p++;
+    }
+
+    unlock();
+
+    traceEnd(method);
+    return nTotal;
+
 } // GetTotal

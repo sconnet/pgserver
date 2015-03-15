@@ -15,7 +15,7 @@
 //                    login queue and for clients ready to communication
 //                    on the commQ
 //
-// Revision History : 
+// Revision History :
 //
 // $Log: work.h,v $
 // Revision 1.2  2001/04/23 01:05:46  sconnet
@@ -35,19 +35,19 @@
 
 class CWork : public CThread
 {
- public:
-  CWork() {}
-  virtual ~CWork() {}
-  
-  void start();
-  void stop(bool waitForThreadJoin = true);
+public:
+    CWork() {}
+    virtual ~CWork() {}
 
- protected:
-  void disconnect(const CClient& client) const;
-  
- private:
-  virtual void ProcessQueue(CClient& client) const = 0;  
-  void thread();
+    void start();
+    void stop(bool waitForThreadJoin = true);
+
+protected:
+    void disconnect(const CClient &client) const;
+
+private:
+    virtual void ProcessQueue(CClient &client) const = 0;
+    void thread();
 };
 
 #endif // __WORK_H_

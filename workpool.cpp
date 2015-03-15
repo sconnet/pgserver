@@ -11,7 +11,7 @@
 //
 // File Overview    : Implementation of the work pool
 //
-// Revision History : 
+// Revision History :
 //
 // $Log: workpool.cpp,v $
 // Revision 1.2  2001/04/23 01:05:46  sconnet
@@ -48,24 +48,24 @@ extern CPGConfig g_cfg;
 //
 void CWorkPool::start()
 {
-  string method("CWorkPool::start");
-  traceBegin(method);
-  
-  CWork* pWork = NULL;
-  // Start with user specified number of login Q threads
-  for(int n = 0; n < g_cfg.loginQThreads(); n++) {
-    pWork = new(nothrow)CWorkLoginQ();
-    hire(pWork);
-  }
+    string method("CWorkPool::start");
+    traceBegin(method);
 
-  // Start with user specified number of comm Q threads
-  for(int n = 0; n < g_cfg.commQThreads(); n++) {
-    pWork = new(nothrow)CWorkCommQ();
-    hire(pWork);
-  }
+    CWork *pWork = NULL;
+    // Start with user specified number of login Q threads
+    for(int n = 0; n < g_cfg.loginQThreads(); n++) {
+        pWork = new(nothrow)CWorkLoginQ();
+        hire(pWork);
+    }
 
-  traceEnd(method);
-  
+    // Start with user specified number of comm Q threads
+    for(int n = 0; n < g_cfg.commQThreads(); n++) {
+        pWork = new(nothrow)CWorkCommQ();
+        hire(pWork);
+    }
+
+    traceEnd(method);
+
 } // start
 
 //
@@ -81,23 +81,23 @@ void CWorkPool::start()
 //
 void CWorkPool::stop()
 {
-  string method("CWorkPool::stop");
-  traceBegin(method);
-  
-  // Stop all workers
-  CWork* pWork = NULL;
-  while(!m_queue.empty()) {
-    pWork = m_queue.front();
-    m_queue.pop();
-    
-    if(pWork) {
-      pWork->stop(false);
-      delete pWork;
-    }
-  }
+    string method("CWorkPool::stop");
+    traceBegin(method);
 
-  traceEnd(method);
-  
+    // Stop all workers
+    CWork *pWork = NULL;
+    while(!m_queue.empty()) {
+        pWork = m_queue.front();
+        m_queue.pop();
+
+        if(pWork) {
+            pWork->stop(false);
+            delete pWork;
+        }
+    }
+
+    traceEnd(method);
+
 } // stop
 
 //
@@ -107,27 +107,27 @@ void CWorkPool::stop()
 // Implementation : Instantiates a new work thread object and tells
 //                  it to start working. It then puts it on a queue
 //                  so we can get to it later to tell it to stop working
-//                  
+//
 //
 // Author         : Steve Connet
 //
 //-------------------------------------------------------------------------
 //
-void CWorkPool::hire(CWork* pWork)
+void CWorkPool::hire(CWork *pWork)
 {
-  string method("CWorkPool::hire");
-  traceBegin(method);
-  
-  if(pWork) {
-    pWork->start();
-    m_queue.push(pWork);
-  }
-  else
-    SYSLOG(LOG_WARNING, "failed to alloc mem for new CWork in %s",
-           method.c_str());
-  
-  traceEnd(method);
-  
+    string method("CWorkPool::hire");
+    traceBegin(method);
+
+    if(pWork) {
+        pWork->start();
+        m_queue.push(pWork);
+    }
+    else
+        SYSLOG(LOG_WARNING, "failed to alloc mem for new CWork in %s",
+               method.c_str());
+
+    traceEnd(method);
+
 } // hire
 
 

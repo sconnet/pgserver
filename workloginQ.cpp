@@ -11,7 +11,7 @@
 //
 // File Overview    : Process clients on the login queue
 //
-// Revision History : 
+// Revision History :
 //
 // $Log: workloginQ.cpp,v $
 // Revision 1.1  2001/04/23 01:05:46  sconnet
@@ -44,19 +44,19 @@ extern CPGConfig g_cfg;
 //
 //-------------------------------------------------------------------------
 //
-void CWorkLoginQ::ProcessQueue(CClient& client) const
+void CWorkLoginQ::ProcessQueue(CClient &client) const
 {
-  string method("CWorkLoginQ::ProcessQueue");
-  traceBegin(method);
-  
-  if(g_loginQ >> client) {
+    string method("CWorkLoginQ::ProcessQueue");
+    traceBegin(method);
 
-    // login client
+    if(g_loginQ >> client) {
 
-    // put on pollClients
-    g_pollClients << client;
-  }
+        // login client
 
-  traceEnd(method);
-  
+        // put on pollClients
+        g_pollClients << client;
+    }
+
+    traceEnd(method);
+
 } // ProcessQueue

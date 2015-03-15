@@ -11,7 +11,7 @@
 //
 // File Overview    : Queue of clients
 //
-// Revision History : 
+// Revision History :
 //
 // $Log: clientQ.h,v $
 // Revision 1.2  2001/04/22 18:10:08  sconnet
@@ -30,34 +30,39 @@
 #include "lock.h"
 
 #include <queue>
-typedef queue<CClient*> ClientQ;
+typedef queue<CClient *> ClientQ;
 
 class CClientQ : private CLock
 {
- public:
-  CClientQ();
-  virtual ~CClientQ();
-  
-  inline void operator<<(CClient* pClient)
-    { return Push(pClient); }
+public:
+    CClientQ();
+    virtual ~CClientQ();
 
-  inline bool operator>>(CClient*& pClient)
-    { WaitOnTrigger(); return PopFront(pClient); }
+    inline void operator<<(CClient *pClient)
+    {
+        return Push(pClient);
+    }
 
-  int Size() const;
-  void DisconnectAll();
-  void Trigger();
-  
- private:
-  void Push(CClient* pClient);
-  bool PopFront(CClient*& pClient);
-  
- private:
-  void WaitOnTrigger();
-  ClientQ m_queue;
-  bool m_bTrigger;
-  pthread_cond_t m_triggerCond;
-  pthread_mutex_t m_triggerMutex;
+    inline bool operator>>(CClient *&pClient)
+    {
+        WaitOnTrigger();
+        return PopFront(pClient);
+    }
+
+    int Size() const;
+    void DisconnectAll();
+    void Trigger();
+
+private:
+    void Push(CClient *pClient);
+    bool PopFront(CClient *&pClient);
+
+private:
+    void WaitOnTrigger();
+    ClientQ m_queue;
+    bool m_bTrigger;
+    pthread_cond_t m_triggerCond;
+    pthread_mutex_t m_triggerMutex;
 };
 
 #endif // __CLIENTQ_H_

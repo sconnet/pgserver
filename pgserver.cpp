@@ -11,7 +11,7 @@
 //
 // File Overview    : main launch point of the Peer Gear server
 //
-// Revision History : 
+// Revision History :
 //
 // $Log: pgserver.cpp,v $
 // Revision 1.2  2001/04/23 01:05:46  sconnet
@@ -44,8 +44,8 @@ string g_sConfigfile("/etc/pgserver.conf");
 
 CPGConfig g_cfg;
 CConnectCount g_connectCount;
-CSafeQ<CClient*> g_loginQ;
-CSafeQ<CClient*> g_commQ;
+CSafeQ<CClient *> g_loginQ;
+CSafeQ<CClient *> g_commQ;
 CPollClients g_pollClients;
 
 // function prototypes
@@ -64,83 +64,84 @@ int daemon_init(void);
 //
 //-------------------------------------------------------------------------
 //
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
-  string fn("main");
-  traceBegin(fn);
-  
-  // become a daemon
-#ifndef _DEBUG
-  if(daemon_init() < 0) {
-    cerr << "Could not initialize as a daemon process." << endl;
-    exit(1);
-  }
-#endif
-  
-  // setup signals to catch
-  signal(SIGTERM, SignalHandler);
-  signal(SIGINT, SignalHandler);
-  signal(SIGHUP, SignalHandler);
-  signal(SIGUSR1, SignalHandler);
-  signal(SIGUSR2, SignalHandler);
-  
-  // signals to ignore
-  signal(SIGPIPE, SIG_IGN);     // handle pipe err's in socket comm.
-  
-  // Tell the syslog we are alive
-  SYSLOG(LOG_INFO, "Peer Gear Server v0.01 starting up!");
-  ReadConfigurationFile();
-  
-#ifdef _DEBUG
-  cout << g_cfg;
-#endif
-  
-  // Start listening for incoming connections on the stats port
-  CAcceptStats acceptStats;
-  acceptStats.start();
-  
-  // Start listening for incoming connections on the clients port
-  CAcceptClient acceptClient;
-  acceptClient.start();
-  
-  // Create thread pool of worker objects to do all the work
-  CWorkPool workPool;
-  workPool.start();
-  g_pollClients.start();
-  
-  // block nothing, sleep until signaled to quit
-  sigset_t emptyset;
-  sigemptyset(&emptyset);
-  sigprocmask(SIG_SETMASK, &emptyset, NULL);
-  while(!g_bQuit)
-    sigsuspend(&emptyset);
-  
-  // inform the world we are stopping
-  SYSLOG(LOG_INFO, "Shutting down...");
-  DEBUG(fn, "  acceptStats.stop();\n");
-  acceptStats.stop();
-  DEBUG(fn, "  acceptClient.stop();\n");
-  acceptClient.stop();
-  DEBUG(fn, "  workPool.stop();\n");
-  workPool.stop();
-  DEBUG(fn, "  g_pollClients.stop();\n");
-  g_pollClients.stop();
-  
-  // Clean up
-  g_loginQ.trigger(true);
-  g_commQ.trigger(true);
+    string fn("main");
+    traceBegin(fn);
 
-  DEBUG(fn, "trigger's set\n");
-  // disconnect clients lingering in the client queues
-  //  g_loginQ.disconnectAll();
-  //  g_commQ.disconnectAll();
-  g_pollClients.disconnectAll();
-  
-  SYSLOG(LOG_INFO, "Exit Success!");
-  
-  traceEnd(fn);
-  return EXIT_SUCCESS;
-  
+    // become a daemon
+#ifndef _DEBUG
+    if(daemon_init() < 0) {
+        cerr << "Could not initialize as a daemon process." << endl;
+        exit(1);
+    }
+#endif
+
+    // setup signals to catch
+    signal(SIGTERM, SignalHandler);
+    signal(SIGINT, SignalHandler);
+    signal(SIGHUP, SignalHandler);
+    signal(SIGUSR1, SignalHandler);
+    signal(SIGUSR2, SignalHandler);
+
+    // signals to ignore
+    signal(SIGPIPE, SIG_IGN);     // handle pipe err's in socket comm.
+
+    // Tell the syslog we are alive
+    SYSLOG(LOG_INFO, "Peer Gear Server v0.01 starting up!");
+    ReadConfigurationFile();
+
+#ifdef _DEBUG
+    cout << g_cfg;
+#endif
+
+    // Start listening for incoming connections on the stats port
+    CAcceptStats acceptStats;
+    acceptStats.start();
+
+    // Start listening for incoming connections on the clients port
+    CAcceptClient acceptClient;
+    acceptClient.start();
+
+    // Create thread pool of worker objects to do all the work
+    CWorkPool workPool;
+    workPool.start();
+    g_pollClients.start();
+
+    // block nothing, sleep until signaled to quit
+    sigset_t emptyset;
+    sigemptyset(&emptyset);
+    sigprocmask(SIG_SETMASK, &emptyset, NULL);
+    while(!g_bQuit) {
+        sigsuspend(&emptyset);
+    }
+
+    // inform the world we are stopping
+    SYSLOG(LOG_INFO, "Shutting down...");
+    DEBUG(fn, "  acceptStats.stop();\n");
+    acceptStats.stop();
+    DEBUG(fn, "  acceptClient.stop();\n");
+    acceptClient.stop();
+    DEBUG(fn, "  workPool.stop();\n");
+    workPool.stop();
+    DEBUG(fn, "  g_pollClients.stop();\n");
+    g_pollClients.stop();
+
+    // Clean up
+    g_loginQ.trigger(true);
+    g_commQ.trigger(true);
+
+    DEBUG(fn, "trigger's set\n");
+    // disconnect clients lingering in the client queues
+    //  g_loginQ.disconnectAll();
+    //  g_commQ.disconnectAll();
+    g_pollClients.disconnectAll();
+
+    SYSLOG(LOG_INFO, "Exit Success!");
+
+    traceEnd(fn);
+    return EXIT_SUCCESS;
+
 } // main
 
 //
@@ -156,31 +157,31 @@ int main(int argc, char* argv[])
 //
 void SignalHandler(int signum)
 {
-  string fn("SignalHandler");
-  traceBegin(fn);
-  
-  signal(signum, SignalHandler);
-  SYSLOG(LOG_INFO, "Signal caught: %d", signum);
-  
-  switch(signum) {
-  case SIGTERM:
-  case SIGINT:
-    g_bQuit = true;
-    break;
-    
-    // Reconfigure
-  case SIGHUP:
-    // this may be unsafe
-    ReadConfigurationFile();
-    break;
-    
-  case SIGUSR1:
-  case SIGUSR2:
-    break;
-  }
-  
-  traceEnd(fn);
-  
+    string fn("SignalHandler");
+    traceBegin(fn);
+
+    signal(signum, SignalHandler);
+    SYSLOG(LOG_INFO, "Signal caught: %d", signum);
+
+    switch(signum) {
+        case SIGTERM:
+        case SIGINT:
+            g_bQuit = true;
+            break;
+
+        // Reconfigure
+        case SIGHUP:
+            // this may be unsafe
+            ReadConfigurationFile();
+            break;
+
+        case SIGUSR1:
+        case SIGUSR2:
+            break;
+    }
+
+    traceEnd(fn);
+
 } // SignalHandler
 
 
@@ -196,17 +197,18 @@ void SignalHandler(int signum)
 //
 void ReadConfigurationFile()
 {
-  string fn("ReadConfigurationFile");
-  traceBegin(fn);
-  
-  if(g_cfg.read(g_sConfigfile) == false)
-    SYSLOG(LOG_WARNING, "Error reading '%s' -- using default values.", 
-           g_sConfigfile.c_str());
-  else
-    SYSLOG(LOG_INFO, "Config file loaded: %s", g_sConfigfile.c_str());
-  
-  traceEnd(fn);
-  
+    string fn("ReadConfigurationFile");
+    traceBegin(fn);
+
+    if(g_cfg.read(g_sConfigfile) == false)
+        SYSLOG(LOG_WARNING, "Error reading '%s' -- using default values.",
+               g_sConfigfile.c_str());
+    else {
+        SYSLOG(LOG_INFO, "Config file loaded: %s", g_sConfigfile.c_str());
+    }
+
+    traceEnd(fn);
+
 } // ReadConfigurationFile
 
 
@@ -224,24 +226,26 @@ void ReadConfigurationFile()
 //
 int daemon_init(void)
 {
-  string fn("daemon_init");
-  traceBegin(fn);
-   
-  pid_t pid;
-  
-  if ( (pid = fork()) < 0)
-    return(-1);
-  else if (pid != 0)
-    exit(0);            /* parent goes bye-bye */
-  
-  /* child continues */
-  setsid();             /* become session leader */
-  
-  chdir("/");           /* change working directory */
-  
-  umask(0);             /* clear our file mode creation mask */
-  
-  traceEnd(fn);
-  return(0);
-  
+    string fn("daemon_init");
+    traceBegin(fn);
+
+    pid_t pid;
+
+    if((pid = fork()) < 0) {
+        return(-1);
+    }
+    else if(pid != 0) {
+        exit(0);    /* parent goes bye-bye */
+    }
+
+    /* child continues */
+    setsid();             /* become session leader */
+
+    chdir("/");           /* change working directory */
+
+    umask(0);             /* clear our file mode creation mask */
+
+    traceEnd(fn);
+    return(0);
+
 } // daemon_init

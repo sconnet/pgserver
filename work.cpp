@@ -11,7 +11,7 @@
 //
 // File Overview    : Implementation of the work thread object
 //
-// Revision History : 
+// Revision History :
 //
 // $Log: work.cpp,v $
 // Revision 1.2  2001/04/23 01:05:46  sconnet
@@ -54,16 +54,16 @@ extern CPollClients g_pollClients;
 //
 void CWork::start()
 {
-  string method("CWork::start");
-  traceBegin(method);
-  
-  // Perform initialization here
-  
-  // Call base class to start thread
-  CThread::start();
+    string method("CWork::start");
+    traceBegin(method);
 
-  traceEnd(method);
-  
+    // Perform initialization here
+
+    // Call base class to start thread
+    CThread::start();
+
+    traceEnd(method);
+
 } // start
 
 
@@ -79,14 +79,14 @@ void CWork::start()
 //
 void CWork::stop(bool waitForThreadJoin)
 {
-  string method("CWork::stop");
-  traceBegin(method);
+    string method("CWork::stop");
+    traceBegin(method);
 
-  // Call base class to stop thread
-  CThread::stop(waitForThreadJoin);
+    // Call base class to stop thread
+    CThread::stop(waitForThreadJoin);
 
-  traceEnd(method);
-  
+    traceEnd(method);
+
 } // stop
 
 //
@@ -99,10 +99,10 @@ void CWork::stop(bool waitForThreadJoin)
 //
 //-------------------------------------------------------------------------
 //
-void CWork::disconnect(const CClient& client) const
+void CWork::disconnect(const CClient &client) const
 {
-  g_pollClients.erase(client);
-  client.disconnect();
+    g_pollClients.erase(client);
+    client.disconnect();
 
 } // disconnect
 
@@ -118,26 +118,27 @@ void CWork::disconnect(const CClient& client) const
 //
 void CWork::thread()
 {
-  string method("CWork::thread");
-  traceBegin(method);
-  
-  // TODO: maybe this should go in the base class CThread
-  // block these signals, we want main to handle them
-  // main is da man!
-  sigset_t intmask;
-  sigemptyset(&intmask);
-  sigaddset(&intmask, SIGINT);
-  pthread_sigmask(SIG_BLOCK, &intmask, NULL);
+    string method("CWork::thread");
+    traceBegin(method);
 
-  CClient client;
-  while(true) {
-    ProcessQueue(client);
+    // TODO: maybe this should go in the base class CThread
+    // block these signals, we want main to handle them
+    // main is da man!
+    sigset_t intmask;
+    sigemptyset(&intmask);
+    sigaddset(&intmask, SIGINT);
+    pthread_sigmask(SIG_BLOCK, &intmask, NULL);
 
-    if(waitForKillEvent(g_cfg.workIdleTime()))
-      break;
-  }
-  
-  traceEnd(method);
-  
+    CClient client;
+    while(true) {
+        ProcessQueue(client);
+
+        if(waitForKillEvent(g_cfg.workIdleTime())) {
+            break;
+        }
+    }
+
+    traceEnd(method);
+
 } // thread
 

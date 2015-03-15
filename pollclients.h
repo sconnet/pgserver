@@ -9,9 +9,9 @@
 //
 // Version          : $Id: pollclients.h,v 1.2 2001/04/23 01:05:46 sconnet Exp $
 //
-// File Overview    : 
+// File Overview    :
 //
-// Revision History : 
+// Revision History :
 //
 // $Log: pollclients.h,v $
 // Revision 1.2  2001/04/23 01:05:46  sconnet
@@ -33,29 +33,31 @@ typedef std::map<int, CClient> ClientMap;
 
 class CPollClients : public CThread, private CLock
 {
- public:
-  CPollClients();
-  virtual ~CPollClients();
-  
-  inline void operator<<(const CClient& client) { insert(client); }
-  //  inline void operator>>(const CClient& client) { erase(client); }
-  
-  void insert(const CClient& client);
-  void erase(const CClient& client);
+public:
+    CPollClients();
+    virtual ~CPollClients();
 
-  int size();
-  void disconnectAll();
-  
-  void start();
-  void stop(bool waitForThreadJoin = true);
-  
- private:
-  void thread();
-  
- private:
-  ClientMap m_map;
-  fd_set m_clients;
-  int m_nMaxFd;
+    inline void operator<<(const CClient &client) {
+        insert(client);
+    }
+    //  inline void operator>>(const CClient& client) { erase(client); }
+
+    void insert(const CClient &client);
+    void erase(const CClient &client);
+
+    int size();
+    void disconnectAll();
+
+    void start();
+    void stop(bool waitForThreadJoin = true);
+
+private:
+    void thread();
+
+private:
+    ClientMap m_map;
+    fd_set m_clients;
+    int m_nMaxFd;
 };
 
 #endif // __POLLCLIENTS_H_

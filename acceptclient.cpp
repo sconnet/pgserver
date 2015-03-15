@@ -11,7 +11,7 @@
 //
 // File Overview    : Implementation of handling newly accepted clients
 //
-// Revision History : 
+// Revision History :
 //
 // $Log: acceptclient.cpp,v $
 // Revision 1.2  2001/04/23 01:05:46  sconnet
@@ -49,18 +49,18 @@ extern CPGConfig g_cfg;
 //
 void CAcceptClient::start()
 {
-  string method("CAcceptClient::start");
-  traceBegin(method);
-  
-  // perform initialization here
-  
-  // call base class
-  init(g_cfg.clientPort(),
-       g_cfg.acceptClientThreadTimeout());
-  CListen::start();
-  
-  traceEnd(method);
-  
+    string method("CAcceptClient::start");
+    traceBegin(method);
+
+    // perform initialization here
+
+    // call base class
+    init(g_cfg.clientPort(),
+         g_cfg.acceptClientThreadTimeout());
+    CListen::start();
+
+    traceEnd(method);
+
 } // start
 
 
@@ -76,16 +76,16 @@ void CAcceptClient::start()
 //
 void CAcceptClient::stop(bool waitForThreadJoin)
 {
-  string method("CAcceptClient::stop");
-  traceBegin(method);
-  
-  // clean up here
+    string method("CAcceptClient::stop");
+    traceBegin(method);
 
-  // call base class
-  CListen::stop(waitForThreadJoin);
-  
-  traceEnd(method);
-  
+    // clean up here
+
+    // call base class
+    CListen::stop(waitForThreadJoin);
+
+    traceEnd(method);
+
 } // stop
 
 
@@ -103,21 +103,22 @@ void CAcceptClient::stop(bool waitForThreadJoin)
 //
 //-------------------------------------------------------------------------
 //
-void CAcceptClient::onAccept(const CClient& client)
+void CAcceptClient::onAccept(const CClient &client)
 {
-  string method("CAcceptClient::onAccept");
-  traceBegin(method);
-  
-  // increment connection count for this ip
-  if(g_connectCount += client.getIpAddr())
-    g_loginQ << client;
-  else {
-    SYSLOG(LOG_INFO, "%s has too many connections", client.getIpAddr().c_str());
-    
-    // fuck 'em, they be bad people
-    client.disconnect();
-  }
-  
-  traceEnd(method);
-  
+    string method("CAcceptClient::onAccept");
+    traceBegin(method);
+
+    // increment connection count for this ip
+    if(g_connectCount += client.getIpAddr()) {
+        g_loginQ << client;
+    }
+    else {
+        SYSLOG(LOG_INFO, "%s has too many connections", client.getIpAddr().c_str());
+
+        // fuck 'em, they be bad people
+        client.disconnect();
+    }
+
+    traceEnd(method);
+
 } // onAccept

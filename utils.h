@@ -14,7 +14,7 @@
 //                    to file descriptors. Basically these are functions
 //                    that do not have a home and can be used by anyone.
 //
-// Revision History : 
+// Revision History :
 //
 // $Log: utils.h,v $
 // Revision 1.2  2001/04/23 01:05:46  sconnet
@@ -36,16 +36,16 @@
 std::string trimLeft(const std::string &value);
 std::string trimRight(const std::string &value);
 
-ssize_t Read(int fd, void* buf, size_t count);
-ssize_t Write(int fd, const void* buf, size_t count);
+ssize_t Read(int fd, void *buf, size_t count);
+ssize_t Write(int fd, const void *buf, size_t count);
 
-void traceBegin(const std::string& method);
-void traceEnd(const std::string& method);
-void TRACE(const std::string& method, const char* fmt, ...);
-void DEBUG(const std::string& method, const char* fmt, ...);
-void SYSLOG(int code, const char* fmt, ...);
+void traceBegin(const std::string &method);
+void traceEnd(const std::string &method);
+void TRACE(const std::string &method, const char *fmt, ...);
+void DEBUG(const std::string &method, const char *fmt, ...);
+void SYSLOG(int code, const char *fmt, ...);
 
-void makeTimespec(int nTimeout /* ms */, struct timespec& ts);
+void makeTimespec(int nTimeout /* ms */, struct timespec &ts);
 
 #endif // __UTILS_H_
 

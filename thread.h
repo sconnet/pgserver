@@ -13,7 +13,7 @@
 //                    functionality. Derived classes MUST override the
 //                    pure virtual function "Thread()".
 //
-// Revision History : 
+// Revision History :
 //
 // $Log: thread.h,v $
 // Revision 1.2  2001/04/23 01:05:46  sconnet
@@ -32,28 +32,33 @@
 
 class CThread
 {
- public:
-  CThread();
-  virtual ~CThread();
-  
-  virtual void start();
-  virtual void stop(bool waitForThreadJoin = true);
-  bool waitForKillEvent(int nTimeout = 0);
-  pthread_t gtThreadId() { return m_tid; }
-  
- private:
-  // thread id
-  pthread_t m_tid;
-  
-  // kill event variables
-  pthread_cond_t m_killCondition;
-  pthread_mutex_t m_killLock;
-  bool m_bKillEventSet;
-  
-  // pure virtual function must be overridden by subclassed objects
-  virtual void thread() = 0;
-  static void* _thread(void* pData) 
-    { reinterpret_cast<CThread*>(pData)->thread(); return 0; }
+public:
+    CThread();
+    virtual ~CThread();
+
+    virtual void start();
+    virtual void stop(bool waitForThreadJoin = true);
+    bool waitForKillEvent(int nTimeout = 0);
+    pthread_t gtThreadId() {
+        return m_tid;
+    }
+
+private:
+    // thread id
+    pthread_t m_tid;
+
+    // kill event variables
+    pthread_cond_t m_killCondition;
+    pthread_mutex_t m_killLock;
+    bool m_bKillEventSet;
+
+    // pure virtual function must be overridden by subclassed objects
+    virtual void thread() = 0;
+    static void *_thread(void *pData)
+    {
+        reinterpret_cast<CThread *>(pData)->thread();
+        return 0;
+    }
 };
 
 #endif // __THREAD_H_

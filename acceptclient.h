@@ -11,7 +11,7 @@
 //
 // File Overview    : Handle accepted client
 //
-// Revision History : 
+// Revision History :
 //
 // $Log: acceptclient.h,v $
 // Revision 1.2  2001/04/23 01:05:46  sconnet
@@ -31,15 +31,15 @@
 
 class CAcceptClient : public CListen
 {
- public:
-  CAcceptClient() {}
-  virtual ~CAcceptClient() {}
-  
-  void start();
-  void stop(bool waitForThreadJoin = true);
-  
- private:
-  void onAccept(const CClient& client);
+public:
+    CAcceptClient() {}
+    virtual ~CAcceptClient() {}
+
+    void start();
+    void stop(bool waitForThreadJoin = true);
+
+private:
+    void onAccept(const CClient &client);
 };
 
 #endif // __ACCEPTCLIENT_H_
