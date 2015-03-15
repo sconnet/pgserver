@@ -29,7 +29,7 @@
 #include "client.h"
 
 #include <map>
-typedef map<int, CClient> ClientMap;
+typedef std::map<int, CClient> ClientMap;
 
 class CPollClients : public CThread, private CLock
 {

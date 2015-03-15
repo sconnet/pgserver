@@ -33,6 +33,8 @@
 #include <cstdlib>
 #include <new>
 
+using namespace std;
+
 //
 //-------------------------------------------------------------------------
 // Function       :  ostream& operator<<(ostream& output,
@@ -89,8 +91,9 @@ CClient::CClient() :
 //
 //-------------------------------------------------------------------------
 //
-CClient::CClient(int fd, int nPort, const char* sIpAddr,
-                 const char* sHostname = NULL) :
+CClient::CClient(int fd, int nPort,
+                 const char* sIpAddr,
+                 const char* sHostname) :
   m_fd(fd),
   m_nPort(nPort),
   m_bGracefulShutdown(true),

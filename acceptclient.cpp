@@ -30,6 +30,8 @@
 #include "client.h"
 #include "pgconfig.h"
 
+using namespace std;
+
 extern CConnectCount g_connectCount;
 extern CSafeQ<CClient> g_loginQ;
 extern CPGConfig g_cfg;
@@ -53,8 +55,9 @@ void CAcceptClient::start()
   // perform initialization here
   
   // call base class
-  CListen::start(g_cfg.clientPort(),
-                 g_cfg.acceptClientThreadTimeout());
+  init(g_cfg.clientPort(),
+       g_cfg.acceptClientThreadTimeout());
+  CListen::start();
   
   traceEnd(method);
   
@@ -71,7 +74,7 @@ void CAcceptClient::start()
 //
 //-------------------------------------------------------------------------
 //
-void CAcceptClient::stop(bool waitForThreadJoin = true)
+void CAcceptClient::stop(bool waitForThreadJoin)
 {
   string method("CAcceptClient::stop");
   traceBegin(method);

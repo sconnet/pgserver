@@ -39,7 +39,7 @@ class CSafeQ : private CLock
 {
  public:
   CSafeQ() {
-    string method("CSafeQ::CSafeQ");
+    std::string method("CSafeQ::CSafeQ");
     traceBegin(method);
     
     pthread_mutex_init(&m_triggerMutex, NULL);
@@ -49,7 +49,7 @@ class CSafeQ : private CLock
   }
 
   virtual ~CSafeQ() {
-    string method("CSafeQ::~CSafeQ");
+    std::string method("CSafeQ::~CSafeQ");
     traceBegin(method);
     
     pthread_mutex_destroy(&m_triggerMutex);
@@ -69,7 +69,7 @@ class CSafeQ : private CLock
   }
 
   int size() const {
-    string method("CSafeQ::size");
+    std::string method("CSafeQ::size");
     traceBegin(method);
     
     lock();
@@ -82,7 +82,7 @@ class CSafeQ : private CLock
   } // size
   
   void push(TYPE obj) {
-    string method("CSafeQ::push");
+    std::string method("CSafeQ::push");
     traceBegin(method);
     
     lock();  
@@ -95,7 +95,7 @@ class CSafeQ : private CLock
   } // push
   
   bool popFront(TYPE& obj) {
-    string method("CSafeQ::popFront");
+    std::string method("CSafeQ::popFront");
     traceBegin(method);
     
     lock();
@@ -113,7 +113,7 @@ class CSafeQ : private CLock
   
   // pass is 0 to wait forever
   void waitOnTrigger(int nTimeout = 1000 /* ms */) {
-    string method("CSafeQ::waitOnTrigger");
+    std::string method("CSafeQ::waitOnTrigger");
     traceBegin(method);
     
     pthread_mutex_lock(&m_triggerMutex);
@@ -143,7 +143,7 @@ class CSafeQ : private CLock
   } // waitOnTrigger
   
   void trigger(bool bAll = false) {
-    string method("CSafeQ::trigger");
+    std::string method("CSafeQ::trigger");
     traceBegin(method);
     
     // turn the trigger on
@@ -160,7 +160,7 @@ class CSafeQ : private CLock
   } // trigger
   
  private:
-  queue<TYPE> m_queue;
+  std::queue<TYPE> m_queue;
   bool m_bTrigger;
   pthread_cond_t m_triggerCond;
   pthread_mutex_t m_triggerMutex;

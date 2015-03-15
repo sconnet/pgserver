@@ -7,16 +7,13 @@
 #
 # Source File Name : makefile
 #
-# Version          : $Id: makefile,v 1.4 2015/03/15 03:08:36 clu Exp $
+# Version          : $Id: make.default,v 1.2 2001/04/23 01:07:30 sconnet Exp $
 #
 # File Overview    : Makefile to make the Pear Gear server
 #
 # Revision History : 
 #
-# $Log: makefile,v $
-# Revision 1.4  2015/03/15 03:08:36  clu
-# updated dependencies for building on osx yosemite
-#
+# $Log: make.default,v $
 # Revision 1.2  2001/04/23 01:07:30  sconnet
 # continued development
 #
@@ -31,7 +28,8 @@
 
 target = pgserver
 
-standard = -Wall -D_REENTRANT -D_THREAD_SAFE -pthread
+#standard = -Wall -D_REENTRANT -D_THREAD_SAFE -pthread
+standard = -Wall -D_REENTRANT -D_THREAD_SAFE
 release = -O2 $(standard)
 debug = -ggdb -D_DEBUG $(standard)
 trace = -D_TRACE $(debug)
@@ -72,9 +70,9 @@ depends:
 	$(CXX) $(flags) -M *.cpp >> makefile
 
 all:
-	gmake clean
-	gmake depends
-	gmake
+	make clean
+	make depends
+	make
 
 install:
 	if [ -f pgserver ]; then cp pgserver /usr/local/bin; fi

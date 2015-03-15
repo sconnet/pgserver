@@ -31,6 +31,8 @@
 #include <fcntl.h>
 #include <signal.h>
 
+using namespace std;
+
 extern CSafeQ<CClient> g_commQ;
 extern CPollClients g_PollClients;
 
@@ -61,7 +63,7 @@ void CPollClients::start()
     
 } // start
 
-void CPollClients::stop(bool waitForThreadJoin = true)
+void CPollClients::stop(bool waitForThreadJoin)
 {
   string method("CPollClients::stop");
   traceBegin(method);

@@ -27,6 +27,8 @@
 #include "acceptstats.h"
 #include "pgconfig.h"
 
+using namespace std;
+
 extern CPGConfig g_cfg;
 
 //
@@ -65,8 +67,9 @@ void CAcceptStats::start()
   // do initialization here
   
   // call base class
-  CListen::start(g_cfg.statsPort(),
-                 g_cfg.acceptStatsThreadTimeout());
+  init(g_cfg.statsPort(),
+       g_cfg.acceptStatsThreadTimeout());
+  CListen::start();
   
   traceEnd(method);
   
@@ -83,7 +86,7 @@ void CAcceptStats::start()
 //
 //-------------------------------------------------------------------------
 //
-void CAcceptStats::stop(bool waitForThreadJoin = true)
+void CAcceptStats::stop(bool waitForThreadJoin)
 {
   string method("CAcceptStats::stop");
   traceBegin(method);

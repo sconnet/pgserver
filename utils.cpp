@@ -32,6 +32,8 @@
 #include <sys/time.h>
 #include <syslog.h>
 
+using namespace std;
+
 //
 //-------------------------------------------------------------------------
 // Function       : ssize_t Read(int fd, void* buf, size_t count)
@@ -271,7 +273,7 @@ void SYSLOG(int code, const char* fmt, ...)
   
   if(retval) {
 #ifndef _DEBUG
-    syslog(code, msg);
+    syslog(code, "%s", msg);
 #else
     cout << msg << endl;
 #endif

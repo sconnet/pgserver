@@ -36,6 +36,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+using namespace std;
+
 // global variables
 volatile sig_atomic_t g_bQuit = false;
 string g_sConfigfile("/etc/pgserver.conf");

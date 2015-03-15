@@ -49,7 +49,7 @@ class CPGConfig : public CConfig
     {}
   ~CPGConfig() {}
 
-  friend ostream& operator<<(ostream& out, const CPGConfig& cfg);
+  friend std::ostream& operator<<(std::ostream& out, const CPGConfig& cfg);
 
   inline int statsPort() const { return m_nStatsPort; }
   inline int acceptStatsThreadTimeout() const
@@ -64,7 +64,7 @@ class CPGConfig : public CConfig
   inline int triggerTimeout() const { return m_nTriggerTimeout; }
   inline bool logClientName() const { return m_bLogClientName; }
   
-  bool read(const string& sFilename);
+  bool read(const std::string& sFilename);
   
  private:
   int m_nStatsPort;

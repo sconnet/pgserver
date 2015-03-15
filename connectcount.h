@@ -45,7 +45,7 @@
 
 #include <string>
 #include <map>
-typedef map<string /* ipaddr */, int /* count */> CountMap;
+typedef std::map<std::string /* ipaddr */, int /* count */> CountMap;
 
 class CConnectCount : private CLock
 {
@@ -53,15 +53,15 @@ class CConnectCount : private CLock
   CConnectCount() {}
   virtual ~CConnectCount() {}
   
-  inline bool operator+=(const string& sIpAddr) { return Insert(sIpAddr); }
-  inline bool operator-=(const string& sIpAddr) { return Erase(sIpAddr); }
-  inline int operator<<(const string& sIpAddr) { return GetCount(sIpAddr); }
+  inline bool operator+=(const std::string& sIpAddr) { return Insert(sIpAddr); }
+  inline bool operator-=(const std::string& sIpAddr) { return Erase(sIpAddr); }
+  inline int operator<<(const std::string& sIpAddr) { return GetCount(sIpAddr); }
   int GetTotal() const;
   
  private:
-  bool Insert(const string& sIpAddr);
-  bool Erase(const string& sIpAddr);
-  int GetCount(const string& sIpAddr) const;
+  bool Insert(const std::string& sIpAddr);
+  bool Erase(const std::string& sIpAddr);
+  int GetCount(const std::string& sIpAddr) const;
   
  private:
   CountMap m_map;

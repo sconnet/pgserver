@@ -27,6 +27,8 @@
 #include "connectcount.h"
 #include "pgconfig.h"
 
+using namespace std;
+
 extern CPGConfig g_cfg;
 
 

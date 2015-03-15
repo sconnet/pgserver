@@ -48,13 +48,13 @@ class CClient : private CLock
   void disconnect() const;
   int operator<<(int nMsg) { return sendMessage(nMsg); }
   int operator>>(int& nMsg) { return readMessage(nMsg); }
-  friend ostream& operator<<(ostream& output, const CClient& client);
+  friend std::ostream& operator<<(std::ostream& output, const CClient& client);
   
   // access methods
   int getFD() const { return m_fd; }
   int getPort() const { return m_nPort; }
-  const string& getHostname() const { return m_sHostname; }
-  const string& getIpAddr() const { return m_sIpAddr; }
+  const std::string& getHostname() const { return m_sHostname; }
+  const std::string& getIpAddr() const { return m_sIpAddr; }
   
   void setGracefulShutdown(bool bGracefulShutdown = true)
     { m_bGracefulShutdown = bGracefulShutdown; }
@@ -71,8 +71,8 @@ class CClient : private CLock
   int m_fd;
   int m_nPort;
   bool m_bGracefulShutdown;
-  string m_sHostname;
-  string m_sIpAddr;
+  std::string m_sHostname;
+  std::string m_sIpAddr;
 };
 
 #endif // __CLIENT_H_

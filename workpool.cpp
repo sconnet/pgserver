@@ -31,6 +31,8 @@
 
 #include <unistd.h>
 
+using namespace std;
+
 extern CPGConfig g_cfg;
 
 

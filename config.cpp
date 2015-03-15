@@ -33,11 +33,13 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#include <cctype>
 #include <fstream>
 #include <algorithm>
 
-extern string g_sConfigfile;
+using namespace std;
 
+extern string g_sConfigfile;
 
 //
 //-------------------------------------------------------------------------
@@ -92,7 +94,7 @@ bool CConfig::read(const string& sFilename)
   bool ok = infile;
   while(getline(infile, buf)) {
     if(buf.length() && isalpha(buf[0])) {
-      transform(buf.begin(), buf.end(), buf.begin(), toupper);
+      transform(buf.begin(), buf.end(), buf.begin(), ::toupper);
       string::size_type pos = buf.find_first_of('=');
       string name(buf.substr(0, pos));
       string value(buf.substr(pos + 1));
@@ -123,14 +125,14 @@ bool CConfig::read(const string& sFilename)
 //-------------------------------------------------------------------------
 //
 string CConfig::getValueAsStr(const char* szName,
-                              const char* szDefault = "")
+                              const char* szDefault)
 {
   string method("CConfig::GetValueAsStr");
   traceBegin(method);
   
   string sReturnVal(szDefault);
   string sName(szName);
-  transform(sName.begin(), sName.end(), sName.begin(), toupper);
+  transform(sName.begin(), sName.end(), sName.begin(), ::toupper);
   
   // find it in the map
   lock();
@@ -157,7 +159,7 @@ string CConfig::getValueAsStr(const char* szName,
 //
 //-------------------------------------------------------------------------
 //
-int CConfig::getValueAsInt(const char* szName, int nDefault = 0)
+int CConfig::getValueAsInt(const char* szName, int nDefault)
 {
   string method("CConfig::getValueAsInt");
   traceBegin(method);

@@ -40,7 +40,7 @@
 
 #include "lock.h"
 
-typedef map<string, string> CMap;
+typedef std::map<std::string, std::string> CMap;
 
 class CConfig : private CLock
 {
@@ -48,18 +48,18 @@ class CConfig : private CLock
   CConfig() {}
   virtual ~CConfig() {}
   
-  virtual bool read(const string& sFilename);  
+  virtual bool read(const std::string& sFilename);  
   
-  inline string operator()(const char* szName, const char* szDefault = "")
+  inline std::string operator()(const char* szName, const char* szDefault = "")
     { return getValueAsStr(szName, szDefault); }
   
   inline int operator()(const char* szName, int nDefault = 0)
     { return getValueAsInt(szName, nDefault); }
 
-  friend ostream& operator<<(ostream& out, const CConfig& cfg);
+  friend std::ostream& operator<<(std::ostream& out, const CConfig& cfg);
 
  protected:
-  string getValueAsStr(const char* szName, const char* szDefault = "");
+  std::string getValueAsStr(const char* szName, const char* szDefault = "");
   int getValueAsInt(const char* szName, int nDefault = 0);
   
  private:

@@ -35,6 +35,8 @@
 #include <sys/socket.h>
 #include <signal.h>      // for signal blocking
 
+using namespace std;
+
 extern CSafeQ<CClient> g_loginQ;
 extern CSafeQ<CClient> g_commQ;
 extern CPGConfig g_cfg;
@@ -75,7 +77,7 @@ void CWork::start()
 //
 //-------------------------------------------------------------------------
 //
-void CWork::stop(bool waitForThreadJoin = true)
+void CWork::stop(bool waitForThreadJoin)
 {
   string method("CWork::stop");
   traceBegin(method);

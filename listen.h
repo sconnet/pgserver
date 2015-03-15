@@ -39,7 +39,9 @@ class CListen : public CThread
   CListen() {}
   virtual ~CListen() {}
   
-  void start(int nPort, int nTimeout = 1000 /* ms */);
+  void init(int nPort, int nTimeout = 1000 /* ms */);
+  void start();
+  
   void displayLocalHost();
   
   int timeout() { return m_nTimeout; }
@@ -48,7 +50,8 @@ class CListen : public CThread
  private:
   int m_listenfd;             // listening socket
   int m_nTimeout;
-  
+  int m_nPort;
+
   // must be overidden by subclass to handle accepted connections
   virtual void onAccept(const CClient& client) = 0;
 };

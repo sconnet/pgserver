@@ -91,7 +91,7 @@ void CThread::start()
 //
 //-------------------------------------------------------------------------
 //
-void CThread:: stop(bool waitForThreadJoin = true)
+void CThread:: stop(bool waitForThreadJoin)
 { 
   pthread_mutex_lock(&m_killLock);
   m_bKillEventSet = true;
@@ -126,7 +126,7 @@ void CThread:: stop(bool waitForThreadJoin = true)
 //
 //-------------------------------------------------------------------------
 //
-bool CThread::waitForKillEvent(int nTimeout = 0)
+bool CThread::waitForKillEvent(int nTimeout)
 {
   pthread_mutex_lock(&m_killLock);
   

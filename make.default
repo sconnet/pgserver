@@ -28,7 +28,8 @@
 
 target = pgserver
 
-standard = -Wall -D_REENTRANT -D_THREAD_SAFE -pthread
+#standard = -Wall -D_REENTRANT -D_THREAD_SAFE -pthread
+standard = -Wall -D_REENTRANT -D_THREAD_SAFE
 release = -O2 $(standard)
 debug = -ggdb -D_DEBUG $(standard)
 trace = -D_TRACE $(debug)
@@ -69,9 +70,9 @@ depends:
 	$(CXX) $(flags) -M *.cpp >> makefile
 
 all:
-	gmake clean
-	gmake depends
-	gmake
+	make clean
+	make depends
+	make
 
 install:
 	if [ -f pgserver ]; then cp pgserver /usr/local/bin; fi

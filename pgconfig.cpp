@@ -24,6 +24,7 @@
 #include "pgserver.h"
 #include "pgconfig.h"
 
+using namespace std;
 
 //
 //-------------------------------------------------------------------------

@@ -28,6 +28,8 @@
 #include "pgconfig.h"
 #include "pollclients.h"
 
+using namespace std;
+
 extern CSafeQ<CClient> g_loginQ;
 extern CPollClients g_pollClients;
 extern CPGConfig g_cfg;

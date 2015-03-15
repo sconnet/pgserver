@@ -30,7 +30,7 @@
 #include "work.h"
 
 #include <queue>
-typedef queue<CWork*> workQ;
+typedef std::queue<CWork*> workQ;
 
 class CWorkPool
 {
